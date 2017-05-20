@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 
+import javax.swing.ImageIcon;
+
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.main.IReferences;
 import com.bdinc.t12d.main.LevelManager;
@@ -14,16 +16,10 @@ import com.bdinc.t12d.objects.Level;
 public class DisplayManager implements IReferences {
 	
 	private Canvas game = Game.canvas;
-	//private Game main;
 	Level lvl1 = new Level();
 	public void init()
 	{
-		//System.out.println("S:");
-		//game = Game.canvas;
-		//main = new Game();
-		//lvl1.create("level1.map");
-		//System.out.println(lvl1);
-		//LevelManager.setLevel(lvl1);
+		
 	}
 	
 	public void update(long delta)
@@ -31,21 +27,58 @@ public class DisplayManager implements IReferences {
 		
 	}
 	
+	public void initRender(Graphics g)
+	{
+		BufferStrategy bs = game.getBufferStrategy();
+		if(bs == null)
+		{
+			game.createBufferStrategy(2);
+			game.requestFocus();
+			return;
+		}
+		g = bs.getDrawGraphics();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, game.getWidth(), game.getHeight());
+	}
+	
+	public void dispose(BufferStrategy bs, Graphics g)
+	{
+		g.dispose();
+		bs.show();
+	}
 	
 	public void render(Graphics g)
 	{
-		try
+		BufferStrategy bs = new Game().getBufferStrategy();
+		if(bs == null)
 		{
-			//LevelManager.currentLevel.load(g);
-			for(Block b : LevelManager.currentLevel.blocks) {
-				b.draw(g);
-			}
+			new Game().createBufferStrategy(2);
+			new Game().requestFocus();
+			return;
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
+		g = bs.getDrawGraphics();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, game.getWidth(), game.getHeight());
+//		try
+//		{
+//			for(Block b : LevelManager.currentLevel.blocks) {
+//				if(g == null)
+//				{
+//					System.err.println("Graphics lost!");
+//				}
+//				if(b.getSprite() == null)
+//				{
+//					System.err.println("No sprite in block<"+b.toString()+">!");
+//				}
+//				g.drawImage(new ImageIcon("assets/sprites/blocks/brick6.png").getImage(), 0, 0, null);
+//				//b.draw(g);
+//			}
+//		}
+//		catch(Exception e)
+//		{
+//			e.printStackTrace();
+//		}
+		dispose(bs, g);
 	}
 	
 }

@@ -20,8 +20,6 @@ public class LevelReader implements IReferences {
 	
 	private static Container cont = new Container(null, null);
 	
-	
-	
 	public Level readLevel(String file)
 	{
 		//System.out.println("A:");
@@ -162,6 +160,7 @@ public class LevelReader implements IReferences {
 						Block b = LevelManager.getObjectByName(n);
 						//System.out.println(Integer.parseInt(v[0]));
 						b.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
+						//System.out.println(b.posX());
 						blocks.add(b);
 						
 					}

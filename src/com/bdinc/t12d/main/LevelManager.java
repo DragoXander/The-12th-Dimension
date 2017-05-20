@@ -23,8 +23,36 @@ public class LevelManager {
 	public static final String LIGHT_OFFICER = "ENT_OFFICER_LIGHT";
 	
 	public static Level currentLevel;
+	public static int levelNumber;
 	
 	private static ResourcesManager resources = new ResourcesManager();
+	private static Level lvl;
+	
+	public static void setLevelByID(int ID) {
+		switch(ID) {
+			case 0:
+				levelNumber = 0;
+				break;
+			case 1:
+				lvl = new Level();
+				lvl.create("level1.map");
+				levelNumber = 1;
+				setLevel(lvl);
+				break;
+			case 2:
+				lvl = new Level();
+				lvl.create("level2.map");
+				levelNumber = 2;
+				setLevel(lvl);
+				break;
+			case 3:
+				lvl = new Level();
+				lvl.create("level3.map");
+				levelNumber = 3;
+				setLevel(lvl);
+				break;
+		}
+	}
 	
 	public static void setLevel(Level lvl)
 	{
@@ -51,12 +79,34 @@ public class LevelManager {
 	
 	public static Block getObjectByName(String name)
 	{
-		if(name.equals(BRICK_6))
-		{
-			Block b = new Block(ResourcesManager.brick6);
-			return b;
+		Block b = null;
+		switch(name) {
+			case BRICK_1:
+				b = new Block(ResourcesManager.brick1);
+				return b;
+			case BRICK_2:
+				b = new Block(ResourcesManager.brick2);
+				return b;
+			case BRICK_3:
+				b = new Block(ResourcesManager.brick3);
+				return b;
+			case BRICK_4:
+				b = new Block(ResourcesManager.brick4);
+				return b;
+			case BRICK_5:
+				b = new Block(ResourcesManager.brick5);
+				return b;
+			case BRICK_6:
+				b = new Block(ResourcesManager.brick6);
+				return b;
+			case BRICK_7:
+				b = new Block(ResourcesManager.brick7);
+				return b;
+			default:
+				return null;
 		}
-		return null;
+		
+		
 	}
 	
 }

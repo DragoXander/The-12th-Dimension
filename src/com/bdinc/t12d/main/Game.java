@@ -6,11 +6,18 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import com.bdinc.t12d.graphics.DisplayManager;
+import com.bdinc.t12d.input.MouseInputManager;
+import com.bdinc.t12d.input.MouseMotionManager;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Level;
@@ -32,20 +39,32 @@ public class Game extends Canvas implements Runnable {
 	
 	private DisplayManager display = new DisplayManager();
 	private static ResourcesManager resources;
+	private static MouseMotionManager mouseManager;
+	private static MouseInputManager mouseInputManager;
+	
 	public static LevelManager manager;
 	public Level lvl1;
 	public Map map;
 	
+	public static int m_playBtnX, m_playBtnY;
+	public static int m_loadBtnX, m_loadBtnY;
+	public static int m_optBtnX, m_optBtnY;
+	public static int m_exitBtnX, m_exitBtnY;
+	
+	public static Image m_playBtn, m_loadBtn, m_optBtn, m_exitBtn;
+	
 	public void init()
 	{
 		map = new Map();
+		mouseManager = new MouseMotionManager();
+		mouseInputManager = new MouseInputManager();
 		map.init();
-		lvl1 = new Level();
-		lvl1.create("level1.map");
-		LevelManager.setLevel(lvl1);
+		LevelManager.setLevelByID(0);
 		display.init();
-		//initRender();
-		System.out.println("");
+		m_playBtn = resources.playBtn;
+		m_loadBtn = resources.loadBtn;
+		m_optBtn = resources.optBtn;
+		m_exitBtn = resources.exitBtn;
 	}
 	
 	public void start()
@@ -58,7 +77,52 @@ public class Game extends Canvas implements Runnable {
 		
 		canvas = new Game();
 		canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		
+		canvas.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				//mouseInputManager.mouseReleased(e);
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//mouseInputManager.mousePressed(e);
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				//mouseInputManager.mouseExited(e);
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//mouseInputManager.mouseEntered(e);
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				mouseInputManager.mouseClicked(e);
+				
+			}
+		});
+		canvas.addMouseMotionListener(new MouseMotionListener() {
+			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				mouseManager.mouseMoved(e);
+				
+			}
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				mouseManager.mouseDragged(e);
+				
+			}
+		});
 		JFrame gameWindow = new JFrame("The 12th Dimension");
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameWindow.setIconImage(resources.gameIcon);
@@ -66,27 +130,11 @@ public class Game extends Canvas implements Runnable {
 		gameWindow.setResizable(false);
 		gameWindow.setVisible(true);
 		gameWindow.add(canvas, BorderLayout.CENTER);
+		
 		gameWindow.pack();
 		
 		canvas.start();
 		
-	}
-	
-	public void initRender()
-	{
-		BufferStrategy bs = canvas.getBufferStrategy();
-		if(bs == null)
-		{
-			canvas.createBufferStrategy(2);
-			canvas.requestFocus();
-			return;
-		}
-		g = bs.getDrawGraphics();
-		g.setColor(Color.black);
-		g.fillRect(0, 0, getWidth(), getHeight());
-		g.dispose();
-		
-		bs.show();
 	}
 	
 	public int getWidth()
@@ -106,31 +154,60 @@ public class Game extends Canvas implements Runnable {
 	
 	public void render()
 	{
-		BufferStrategy bs = canvas.getBufferStrategy();
+		BufferStrategy bs = getBufferStrategy();
 		if(bs == null)
 		{
-			canvas.createBufferStrategy(2);
-			canvas.requestFocus();
+			createBufferStrategy(2);
+			requestFocus();
 			return;
 		}
 		g = bs.getDrawGraphics();
 		g.setColor(Color.black);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.dispose();
 		
-		bs.show();
 		try
 		{
-			//LevelManager.currentLevel.load(g);
-			for(Block b : LevelManager.currentLevel.blocks) {
-				b.draw(g);
+			if(LevelManager.levelNumber > 0) {
+				for(Block b : LevelManager.currentLevel.blocks) {
+					if(g == null)
+					{
+						System.err.println("Graphics lost!");
+					}
+					if(b.getSprite() == null)
+					{
+						System.err.println("No sprite in block<"+b.toString()+">!");
+					}
+					//g.drawImage(new ImageIcon("assets/sprites/blocks/brick6.png").getImage(), 0, 0, null);
+					b.draw(g);
+				}
 			}
+			else {
+				//#MainMenu level:
+				g.drawImage(resources.logo, this.getWidth()/2-resources.logo.getWidth(null)/2, 50, null);
+				
+				m_playBtnX = this.getWidth()/2-m_playBtn.getWidth(null)/2;
+				m_playBtnY = this.getHeight()/2 - 100;
+				m_loadBtnX = this.getWidth()/2-m_loadBtn.getWidth(null)/2;
+				m_loadBtnY = m_playBtnY+m_playBtn.getHeight(null)+5;
+				m_optBtnX = this.getWidth()/2-m_optBtn.getWidth(null)/2;
+				m_optBtnY = m_loadBtnY+m_loadBtn.getHeight(null)+5;
+				m_exitBtnX = this.getWidth()/2-m_exitBtn.getWidth(null)/2;
+				m_exitBtnY = m_optBtnY+m_optBtn.getHeight(null)+5;
+				
+				g.drawImage(m_playBtn, m_playBtnX, m_playBtnY, null);
+				g.drawImage(m_loadBtn, m_loadBtnX, m_loadBtnY, null);
+				g.drawImage(m_optBtn, m_optBtnX, m_optBtnY, null);
+				g.drawImage(m_exitBtn, m_exitBtnX, m_exitBtnY, null);
+			}
+			
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 		
+		g.dispose();
+		bs.show();
 	}
 	
 	@Override
@@ -139,7 +216,7 @@ public class Game extends Canvas implements Runnable {
 		
 		init();
 		
-		int i = 0;
+		//int i = 0;
 		while(isRunning)
 		{
 			delta = System.currentTimeMillis() - last;

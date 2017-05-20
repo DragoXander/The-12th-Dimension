@@ -18,11 +18,11 @@ public class Map {
 			for(int j = 0; j < verticalCount; j++)
 			{
 				cells[i][j] = new Vector2(x, y);
-				y += cellSize+1;
+				y += cellSize;
 				
 			}
 			y = 0;
-			x += cellSize+1;
+			x += cellSize;
 		}
 	}
 	
