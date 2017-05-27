@@ -6,54 +6,54 @@ import java.awt.event.KeyListener;
 
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.maths.Physics;
+import com.bdinc.t12d.objects.Entity;
 
 public class InputManager extends KeyAdapter implements KeyListener {
-
+	
+	private Entity player;
+	private boolean colBot, colTop;
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
+		player = Game.player;
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			Game.player.left = true;
+			player.left = true;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			Game.player.right = true;
+			player.right = true;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			Game.player.isRunning = true;
+			player.isRunning = true;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			if(Physics.collidesBottom(Game.player.posX(), Game.player.posY()))
+			colBot = Physics.collidesBottom(player.posX(), player.posY());
+			colTop = Physics.collidesTop(player.posX(), player.posY());
+			if(colBot && !colTop)
 			{
-				Game.player.jump = true;
+				player.jump = true;
 			}
-			
 		}
 		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		player = Game.player;
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			Game.player.left = false;
+			player.left = false;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			Game.player.right = false;
+			player.right = false;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			Game.player.isRunning = false;
+			player.isRunning = false;
 		}
-//		if(e.getKeyCode() == KeyEvent.VK_W) {
-//			if(Physics.collidesBottom(Game.player.posX(), Game.player.posY()))
-//			{
-//				Game.player.jump = false;
-//			}
-//			
-//		}
 
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
+		
 
 	}
 

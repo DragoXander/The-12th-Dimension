@@ -51,7 +51,9 @@ public class Entity implements IReferences {
 	}
 	
 	public void moveRight() {
-		if(!Physics.collidesRight(Game.player.posX(), Game.player.posY())) {
+		Entity player = Game.player;
+		boolean colRight = Physics.collidesRight(player.posX(), player.posY());
+		if(!colRight) {
 			if(!isRunning) {
 				if(this.x+map.cellSize < game.getWidth()) {
 					this.x += 1 * speed;
@@ -66,17 +68,24 @@ public class Entity implements IReferences {
 	}
 	
 	public void jump() {
-		if(Physics.collidesBottom(Game.player.posX(),Game.player.posY())) {
+		Entity player = Game.player;
+		boolean colBot = Physics.collidesBottom(player.posX(), player.posY());
+		boolean colTop = Physics.collidesTop(player.posX(), player.posY());
+		
+		if(colBot) {
 			tmp = y;
 		}
+		
 		y -= 1;
-		if(y <= tmp-50 || Physics.collidesTop(Game.player.posX(), Game.player.posY())) {
+		if(y <= tmp-50 || colTop) {
 			jump = false;
 		}
 	}
 	
 	public void moveLeft() {
-		if(!Physics.collidesLeft(Game.player.posX(), Game.player.posY())) {
+		Entity player = Game.player;
+		boolean colLeft = Physics.collidesLeft(player.posX(), player.posY());
+		if(!colLeft) {
 			if(!isRunning) {
 				if(this.x > 0) {
 					this.x -= 1 * speed;

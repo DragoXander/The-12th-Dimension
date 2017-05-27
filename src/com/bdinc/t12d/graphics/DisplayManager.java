@@ -12,12 +12,15 @@ import com.bdinc.t12d.main.IReferences;
 import com.bdinc.t12d.main.LevelManager;
 import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.objects.Block;
+import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Level;
 
 public class DisplayManager implements IReferences {
 	
 	private Canvas game = Game.canvas;
 	Level lvl1 = new Level();
+	private boolean collisionBottom;
+	private Entity player;
 	
 	public void init()
 	{
@@ -27,17 +30,19 @@ public class DisplayManager implements IReferences {
 	public void update(long delta)
 	{
 		if(LevelManager.levelNumber > 0) {
-			if(!Physics.collidesBottom(Game.player.posX(), Game.player.posY()) &&  !Game.player.jump) {
-				Game.player.incY(0.5f);
+			player = Game.player;
+			collisionBottom = Physics.collidesBottom(player.posX(), player.posY());
+			if(!collisionBottom && !player.jump) {
+				player.incY(0.5f);
 			}
 			if(Game.player.jump) {
-				Game.player.jump();
+				player.jump();
 			}
 			if(Game.player.left) {
-				Game.player.moveLeft();
+				player.moveLeft();
 			}
 			if(Game.player.right) {
-				Game.player.moveRight();
+				player.moveRight();
 			}
 		}
 		
