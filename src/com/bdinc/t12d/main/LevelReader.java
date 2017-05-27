@@ -100,13 +100,14 @@ public class LevelReader implements IReferences {
 				entity = true;
 			}
 			String[] vec = map.get(n);
+			
 			for(int i = 0; i < vec.length; i++)
 			{
 				String[] v = vec[i].split(",");
 				if(isCharExistIn(v[0], '-'))
 				{
 					String[] v_pt2 = v[0].split("-");
-					for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1]); j+=1)
+					for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1])+1; j+=1)
 					{
 						if(entity)
 						{
@@ -127,7 +128,7 @@ public class LevelReader implements IReferences {
 				else if(isCharExistIn(v[1], '-'))
 				{
 					String[] v_pt2 = v[1].split("-");
-					for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1]); j+=1)
+					for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1])+1; j+=1)
 					{
 						if(entity)
 						{

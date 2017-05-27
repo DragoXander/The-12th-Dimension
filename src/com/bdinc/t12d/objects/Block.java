@@ -19,7 +19,10 @@ public class Block implements IReferences {
 	private float x, y;
 	private int cellX, cellY;
 	private Map map = new Map();
+	public boolean isSolid = true;
 	private Game game = new Game();
+	
+	public String id;
 	
 	public Block(Image sprite)
 	{

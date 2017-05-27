@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.bdinc.t12d.main.Container;
+import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.main.IReferences;
+import com.bdinc.t12d.main.LevelManager;
 import com.bdinc.t12d.main.LevelReader;
 import com.bdinc.t12d.maths.Map;
 
@@ -29,46 +31,57 @@ public class Level implements IReferences {
 	public void init()
 	{
 		map.init();
+		try
+		{
+			entities.add(Game.player);
+		}
+		catch(Exception e) {
+			System.err.println("Can't add player to the entities list!");
+		}
 		
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void create(String file)
 	{
-		//HashMap<ArrayList<Block>, ArrayList<Entity>> source = null;
 		Level source = null;
-		//System.out.println("A:"+file);
-		String s = "";
 		try
 		{
-			//System.out.println("A:"+file);
 			source = reader.readLevel("assets/levels/"+file);
-			//reader.read("assets/levels/"+file);
-			//System.out.println("FF");
-			
 		}
 		catch(Exception e)
 		{
+			System.err.println("Can't read the level file: <"+file+">!");
 			e.printStackTrace();
-			//System.out.println("S:"+source);
 		}
-		
-		//System.out.println("S:"+source);
-		//entities = (ArrayList<Entity>)source.values().toArray()[0];
-		//blocks = (ArrayList<Block>)source.keySet().toArray()[0];
 		entities = source.entities;
 		blocks = source.blocks;
-		//System.out.println("S:"+source.getValue().toArray()[0]);
-		//System.out.println("S:");
+		this.init();
 	}
 	
 	public void load(Graphics g)
 	{
 		try
 		{
-			//System.err.println(g);
-			for(Block b : blocks) {
+			for(Block b : LevelManager.currentLevel.blocks) {
+				if(b.getSprite() == null)
+				{
+					System.err.println("No sprite in block<"+b.toString()+">!");
+				}
 				b.draw(g);
+			}
+			if(entities.size() == 0) {
+				System.err.println("No entities on the current level!");
+			}
+			if(blocks.size() == 0) {
+				System.err.println("No blocks on the current level!");
+			}
+			for(Entity e : LevelManager.currentLevel.entities) {
+				if(e.getSprite() == null)
+				{
+					System.err.println("No sprite in entity<"+e.toString()+">!");
+				}
+				e.draw(g);
 			}
 		}
 		catch(Exception e)

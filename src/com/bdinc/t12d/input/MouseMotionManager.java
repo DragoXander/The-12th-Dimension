@@ -1,5 +1,6 @@
 package com.bdinc.t12d.input;
 
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
@@ -7,7 +8,7 @@ import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.main.LevelManager;
 import com.bdinc.t12d.main.ResourcesManager;
 
-public class MouseMotionManager implements MouseMotionListener {
+public class MouseMotionManager extends MouseAdapter implements MouseMotionListener {
 
 	@Override
 	public void mouseDragged(MouseEvent e) {

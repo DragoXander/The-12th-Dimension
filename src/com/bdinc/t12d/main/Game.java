@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -16,10 +18,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import com.bdinc.t12d.graphics.DisplayManager;
+import com.bdinc.t12d.input.InputManager;
 import com.bdinc.t12d.input.MouseInputManager;
 import com.bdinc.t12d.input.MouseMotionManager;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.objects.Block;
+import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Level;
 
 public class Game extends Canvas implements Runnable {
@@ -41,6 +45,7 @@ public class Game extends Canvas implements Runnable {
 	private static ResourcesManager resources;
 	private static MouseMotionManager mouseManager;
 	private static MouseInputManager mouseInputManager;
+	private static InputManager keyManager;
 	
 	public static LevelManager manager;
 	public Level lvl1;
@@ -51,6 +56,8 @@ public class Game extends Canvas implements Runnable {
 	public static int m_optBtnX, m_optBtnY;
 	public static int m_exitBtnX, m_exitBtnY;
 	
+	public static Entity player;
+	
 	public static Image m_playBtn, m_loadBtn, m_optBtn, m_exitBtn;
 	
 	public void init()
@@ -58,6 +65,7 @@ public class Game extends Canvas implements Runnable {
 		map = new Map();
 		mouseManager = new MouseMotionManager();
 		mouseInputManager = new MouseInputManager();
+		keyManager = new InputManager();
 		map.init();
 		LevelManager.setLevelByID(0);
 		display.init();
@@ -65,6 +73,14 @@ public class Game extends Canvas implements Runnable {
 		m_loadBtn = resources.loadBtn;
 		m_optBtn = resources.optBtn;
 		m_exitBtn = resources.exitBtn;
+		player = new Entity(resources.player);
+		player.setMaxHealth(100);
+		player.setHealth(100);
+		player.setMagicCount(0);
+		player.setMaxMagic(30);
+		player.setName("Adam Robbins");
+		player.setPosition(5, 1);
+		
 	}
 	
 	public void start()
@@ -77,29 +93,49 @@ public class Game extends Canvas implements Runnable {
 		
 		canvas = new Game();
 		canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		canvas.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				keyManager.keyTyped(e);
+				
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				keyManager.keyReleased(e);
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				keyManager.keyPressed(e);
+				
+			}
+		});
 		canvas.addMouseListener(new MouseListener() {
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				//mouseInputManager.mouseReleased(e);
+				mouseInputManager.mouseReleased(e);
 				
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
-				//mouseInputManager.mousePressed(e);
+				mouseInputManager.mousePressed(e);
 				
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
-				//mouseInputManager.mouseExited(e);
+				mouseInputManager.mouseExited(e);
 				
 			}
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				//mouseInputManager.mouseEntered(e);
+				mouseInputManager.mouseEntered(e);
 				
 			}
 			
@@ -113,13 +149,13 @@ public class Game extends Canvas implements Runnable {
 			
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				mouseManager.mouseMoved(e);
+					mouseManager.mouseMoved(e);
 				
 			}
 			
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				mouseManager.mouseDragged(e);
+					mouseManager.mouseDragged(e);
 				
 			}
 		});
@@ -157,29 +193,22 @@ public class Game extends Canvas implements Runnable {
 		BufferStrategy bs = getBufferStrategy();
 		if(bs == null)
 		{
-			createBufferStrategy(2);
+			createBufferStrategy(4);
 			requestFocus();
 			return;
 		}
 		g = bs.getDrawGraphics();
 		g.setColor(Color.black);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		
+		if(g == null)
+		{
+			System.err.println("Graphics lost!");
+		}
 		try
 		{
 			if(LevelManager.levelNumber > 0) {
-				for(Block b : LevelManager.currentLevel.blocks) {
-					if(g == null)
-					{
-						System.err.println("Graphics lost!");
-					}
-					if(b.getSprite() == null)
-					{
-						System.err.println("No sprite in block<"+b.toString()+">!");
-					}
-					//g.drawImage(new ImageIcon("assets/sprites/blocks/brick6.png").getImage(), 0, 0, null);
-					b.draw(g);
-				}
+				
+				LevelManager.currentLevel.load(g);
 			}
 			else {
 				//#MainMenu level:
