@@ -1,5 +1,6 @@
 package com.bdinc.t12d.objects;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 
@@ -28,6 +29,7 @@ public class Entity implements IReferences {
 	private float speed = 0.5f, runSpeed = 1;
 	
 	public boolean isRunning, right, left, jump;
+	private boolean magicUnlimited;
 	
 	private String name = "#Entity:???";
 	
@@ -57,14 +59,21 @@ public class Entity implements IReferences {
 			if(!isRunning) {
 				if(this.x+map.cellSize < game.getWidth()) {
 					this.x += 1 * speed;
+					setCell(map.checkCell(x, y));
 				}
 			}
 			else {
 				if(this.x+map.cellSize < game.getWidth()) {
 					this.x += 1 * runSpeed;
+					setCell(map.checkCell(x, y));
 				}
 			}
 		}
+	}
+	
+	public void setCell(Vector2 cell) {
+		cellX = (int)cell.x;
+		cellY = (int)cell.y;
 	}
 	
 	public void jump() {
@@ -75,8 +84,8 @@ public class Entity implements IReferences {
 		if(colBot) {
 			tmp = y;
 		}
-		
 		y -= 1;
+		setCell(map.checkCell(x, y));
 		if(y <= tmp-50 || colTop) {
 			jump = false;
 		}
@@ -89,14 +98,22 @@ public class Entity implements IReferences {
 			if(!isRunning) {
 				if(this.x > 0) {
 					this.x -= 1 * speed;
+					setCell(map.checkCell(x, y));
 				}
 			}
 			else {
 				if(this.x > 0) {
 					this.x -= 1 * runSpeed;
+					setCell(map.checkCell(x, y));
 				}
 			}
 		}
+	}
+	
+	public void attack(Graphics g, Entity target) {
+		g.setColor(Color.YELLOW);
+		g.drawLine((int)this.x, (int)this.y, (int)target.posX(), (int)target.posY());
+		target.decreaseHealth(10);
 	}
 	
 	public void setHealth(int health) {
@@ -125,6 +142,12 @@ public class Entity implements IReferences {
 	
 	public void setMagicCount(int magic) {
 		this.magicCount = magic;
+	}
+	
+	public void setMagicCount(String tag) {
+		if(tag.equals("unlimited")) {
+			magicUnlimited = true;
+		}
 	}
 	
 	public void setMaxMagic(int magic) {

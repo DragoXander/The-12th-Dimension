@@ -10,9 +10,12 @@ import javax.swing.ImageIcon;
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.main.IReferences;
 import com.bdinc.t12d.main.LevelManager;
+import com.bdinc.t12d.maths.IntVector2;
+import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
+import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.objects.Level;
 
 public class DisplayManager implements IReferences {
@@ -21,10 +24,12 @@ public class DisplayManager implements IReferences {
 	Level lvl1 = new Level();
 	private boolean collisionBottom;
 	private Entity player;
+	private IntVector2 plCell, flameCell;
+	private Map map = new Map();
 	
 	public void init()
 	{
-		
+		map.init();
 	}
 	
 	public void update(long delta)
@@ -32,8 +37,11 @@ public class DisplayManager implements IReferences {
 		if(LevelManager.levelNumber > 0) {
 			player = Game.player;
 			collisionBottom = Physics.collidesBottom(player.posX(), player.posY());
+			plCell = Game.player.getCell();
+			
 			if(!collisionBottom && !player.jump) {
 				player.incY(0.5f);
+				player.setCell(map.checkCell(player.posX(), player.posY()));
 			}
 			if(Game.player.jump) {
 				player.jump();
@@ -44,6 +52,19 @@ public class DisplayManager implements IReferences {
 			if(Game.player.right) {
 				player.moveRight();
 			}
+			for(Flame f : LevelManager.currentLevel.flames) {
+				flameCell = f.getCell();
+				if(plCell.x == flameCell.x) {
+					if(plCell.y == flameCell.y) {
+						f.activate();
+						//System.err.println("PlayerCell:["+plCell.x+","+plCell.y+"];");
+					}
+				}
+				System.err.println("PlayerCell:["+plCell.x+","+plCell.y+"];");
+			}
+//			if(Physics.collidesEntity(player.posX(), player.posY())) {
+//				player.decreaseHealth(10);
+//			}
 		}
 		
 		

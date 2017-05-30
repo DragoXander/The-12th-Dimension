@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JOptionPane;
+
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
+import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.objects.Level;
 
 public class LevelReader implements IReferences {
@@ -16,7 +18,7 @@ public class LevelReader implements IReferences {
 	private static int tmpIndex = 0;
 	private static int blockCount;
 	private static boolean entity = false;
-	private static boolean thief = false;
+	private static boolean flame = false;
 	
 	private static Container cont = new Container(null, null);
 	
@@ -27,6 +29,7 @@ public class LevelReader implements IReferences {
 		Level lvl = new Level();
 		ArrayList<Block> blocks = new ArrayList<Block>();
 		ArrayList<Entity> entities = new ArrayList<Entity>();
+		ArrayList<Flame> flames = new ArrayList<Flame>();
 		//HashMap<ArrayList<Block>, ArrayList<Entity>> res = new HashMap<ArrayList<Block>, ArrayList<Entity>>();
 		try
 		{
@@ -42,10 +45,19 @@ public class LevelReader implements IReferences {
 			//System.out.println("A:"+text);
 			String[] tmp = text.split("\\.");
 			blockCount = tmp.length;
+
 			while(tmpIndex < blockCount)
 			{
 				HashMap<String, String[]> map = readBlock(tmp[tmpIndex]+".", "#", ";", ":", "\\.");
-				analyzeCode(lvl, map, blocks, entities);
+				
+				try {
+					analyzeCode(lvl, map, blocks, entities, flames);
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				
+				
 				tmpIndex++;
 			}
 			
@@ -73,6 +85,7 @@ public class LevelReader implements IReferences {
 		//cont = new Container(blocks, entities);
 		lvl.entities = entities;
 		lvl.blocks = blocks;
+		lvl.flames = flames;
 		//System.out.println("A:"+cont.getKey().get(1));
 		
 		return lvl;
@@ -90,14 +103,23 @@ public class LevelReader implements IReferences {
 		return value;
 	}
 	
-	private static void analyzeCode(Level lvl1, HashMap<String, String[]> map, ArrayList<Block> blocks, ArrayList<Entity> entities)
+	private static void analyzeCode(Level lvl1, HashMap<String, String[]> map, ArrayList<Block> blocks, ArrayList<Entity> entities,
+			ArrayList<Flame> flames)
 	{
 		for(String n : map.keySet())
 		{
-			//System.out.println("A:");
 			if(n.startsWith("ENT"))
 			{
 				entity = true;
+			}
+			else {
+				entity = false;
+			}
+			if(n.startsWith("FLAME")) {
+				flame = true;
+			}
+			else {
+				flame = false;
 			}
 			String[] vec = map.get(n);
 			
@@ -114,9 +136,13 @@ public class LevelReader implements IReferences {
 							Entity ent = LevelManager.getEntityByName(n);
 							ent.setPosition(j, Integer.parseInt(v[1]));
 							entities.add(ent);
-							entity = false;
 						}
-						else
+						else if(flame) {
+							Flame f = LevelManager.getFlame(n);
+							f.setPosition(j, Integer.parseInt(v[1]));
+							flames.add(f);
+						}
+						else if(!entity && !flame)
 						{
 							Block b = LevelManager.getObjectByName(n);
 							b.setLocation(j, Integer.parseInt(v[1]));
@@ -135,9 +161,13 @@ public class LevelReader implements IReferences {
 							Entity ent = LevelManager.getEntityByName(n);
 							ent.setPosition(Integer.parseInt(v[0]), j);
 							entities.add(ent);
-							entity = false;
 						}
-						else
+						else if(flame) {
+							Flame f = LevelManager.getFlame(n);
+							f.setPosition(Integer.parseInt(v[0]), j);
+							flames.add(f);
+						}
+						else if(!entity && !flame)
 						{
 							Block b = LevelManager.getObjectByName(n);
 							b.setLocation(Integer.parseInt(v[0]), j);
@@ -153,15 +183,17 @@ public class LevelReader implements IReferences {
 						Entity ent = LevelManager.getEntityByName(n);
 						ent.setPosition(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 						entities.add(ent);
-						entity = false;
 					}
-					else
+					else if(flame) {
+						Flame f = LevelManager.getFlame(n);
+						f.setPosition(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
+						System.err.println("X:"+Integer.parseInt(v[0]));
+						flames.add(f);
+					}
+					else if(!entity && !flame)
 					{
-						//System.out.println("A:");
 						Block b = LevelManager.getObjectByName(n);
-						//System.out.println(Integer.parseInt(v[0]));
 						b.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
-						//System.out.println(b.posX());
 						blocks.add(b);
 						
 					}

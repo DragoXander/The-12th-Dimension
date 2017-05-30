@@ -1,8 +1,11 @@
 package com.bdinc.t12d.main;
 
+import java.awt.Font;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
+
+import com.bdinc.t12d.graphics.FontManager;
 
 public class ResourcesManager {
 	
@@ -14,12 +17,18 @@ public class ResourcesManager {
 	public static String itemsDir = "assets/sprites/items";
 	public static String particlesDir = "assets/sprites/particles";
 	public static String guiDir = "assets/gui";
+	public static String fontsDir = guiDir+"/fonts";
+	
+	/*
+	 * Fonts
+	 */
+	public static Font defaultFont = FontManager.getFont(fontsDir+"/Bulgaria_Glorious_Cyr.ttf", 18);
 	
 	/*
 	 * #GUI
 	 */
 	public static Image gameIcon = new ImageIcon("assets/gameIcon.png").getImage();
-	public static Image logo = new ImageIcon(guiDir+"/logo.gif").getImage();
+	public static Image logo = new ImageIcon(guiDir+"/logo.png").getImage();
 	public static Image playBtn = new ImageIcon(guiDir+"/buttons/btnPlay.png").getImage();
 	public static Image loadBtn = new ImageIcon(guiDir+"/buttons/btnLoad.png").getImage();
 	public static Image optBtn = new ImageIcon(guiDir+"/buttons/btnOptions.png").getImage();
@@ -39,6 +48,7 @@ public class ResourcesManager {
 	public static Image brick5 = new ImageIcon(blocksDir+"/brick5.png").getImage();
 	public static Image brick6 = new ImageIcon(blocksDir+"/brick6.png").getImage();
 	public static Image brick7 = new ImageIcon(blocksDir+"/brick7.png").getImage();
+	public static Image wall1 = new ImageIcon(blocksDir+"/wall1.png").getImage();
 	
 	/*
 	 * #Entities
@@ -60,6 +70,8 @@ public class ResourcesManager {
 	 * #Environment
 	 */
 	public static Image finish = new ImageIcon(envDir+"/finish.png").getImage();
+	public static Image flame = new ImageIcon(envDir+"/flame.png").getImage();
+	public static Image flameOff = new ImageIcon(envDir+"/flame_off.png").getImage();
 	
 	/*
 	 * #Items

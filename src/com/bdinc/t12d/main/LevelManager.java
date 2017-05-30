@@ -2,25 +2,29 @@ package com.bdinc.t12d.main;
 
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
+import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.objects.Level;
 
 public class LevelManager {
 	
-	public static final String BRICK_1 = "Brick1";
-	public static final String BRICK_2 = "Brick2";
-	public static final String BRICK_3 = "Brick3";
-	public static final String BRICK_4 = "Brick4";
+	public static final String BRICK_1 = "BRICK_GRAY";
+	public static final String BRICK_2 = "BRICK_ICE";
+	public static final String BRICK_3 = "BRICK_GREEN";
+	public static final String BRICK_4 = "BRICK_GOLD";
 	public static final String BRICK_5 = "Brick5";
 	public static final String BRICK_6 = "Brick6";
 	public static final String BRICK_7 = "Brick7";
 	public static final String FLOOR_1 = "Floor1";
 	public static final String FLOOR_7 = "Floor7";
+	public static final String WALL_1 = "WALL_GRAY";
 	public static final String BULLET_PACK_DEF = "BulletPack_Default";
 	public static final String FINISH = "FINISH";
 	public static final String COIN10 = "Coin10";
 	public static final String THIEF = "ENT_THIEF";
-	public static final String FIRE_MONSTER = "ENT_MONST_FIRE";
+	public static final String FIRE_MAN = "ENT_MONST_FIRE";
 	public static final String LIGHT_OFFICER = "ENT_OFFICER_LIGHT";
+	public static final String FLAME_OFF = "FLAME";
+	public static final String FLAME = "FLAME_ACTIVE";
 	
 	public static Level currentLevel;
 	public static int levelNumber;
@@ -66,15 +70,15 @@ public class LevelManager {
 	
 	public static Entity getEntityByName(String name)
 	{
-		if(name.equals(LIGHT_OFFICER))
-		{
-			Entity ent = new Entity(resources.brick6);
-			//ent.damage = 50;
-			//ent.maxHealth = 100;
-			//ent.health = 100;
-			return ent;
+		switch(name) {
+			case FIRE_MAN:
+				Entity ent = new Entity(resources.monstFire);
+				ent.setHealth(100);
+				ent.setMagicCount("unlimited");
+				return ent;
+			default:
+				return null;
 		}
-		return null;
 	}
 	
 	public static Block getObjectByName(String name)
@@ -102,11 +106,28 @@ public class LevelManager {
 			case BRICK_7:
 				b = new Block(ResourcesManager.brick7);
 				return b;
+			case WALL_1:
+				b = new Block(ResourcesManager.wall1);
+				b.isSolid = false;
+				return b;
 			default:
 				return null;
 		}
-		
-		
+	}
+	
+	public static Flame getFlame(String name) {
+		Flame f = null;
+		switch(name) {
+			case FLAME_OFF:
+				f = new Flame();
+				return f;
+			case FLAME:
+				f = new Flame();
+				f.setActive(true);
+				return f;
+			default:
+				return null;
+		}
 	}
 	
 }

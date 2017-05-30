@@ -5,6 +5,7 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -12,6 +13,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.ImageIcon;
@@ -30,9 +34,9 @@ public class Game extends Canvas implements Runnable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private boolean isRunning;
+	private static boolean isRunning;
 	private long delta;
-	private Graphics g;
+	public static Graphics g;
 	
 	public static Game canvas;
 	
@@ -40,6 +44,14 @@ public class Game extends Canvas implements Runnable {
 	
 	public static final int WIDTH = 1120; //32 x35
 	public static final int HEIGHT = 704; //32 x22
+	
+	public static final String VERSION = "v1.0-build3";
+	
+	public static final boolean isDevelopmentBuild = true;
+	
+	public static boolean stopped;
+	
+	public static String profileName = "default";
 	
 	private DisplayManager display = new DisplayManager();
 	private static ResourcesManager resources;
@@ -56,9 +68,13 @@ public class Game extends Canvas implements Runnable {
 	public static int m_optBtnX, m_optBtnY;
 	public static int m_exitBtnX, m_exitBtnY;
 	
+	public static JFrame gameWindow;
+	
 	public static Entity player;
 	
 	public static Image m_playBtn, m_loadBtn, m_optBtn, m_exitBtn;
+	
+	private static Thread gameStream;
 	
 	public void init()
 	{
@@ -86,7 +102,8 @@ public class Game extends Canvas implements Runnable {
 	public void start()
 	{
 		isRunning = true;
-		new Thread(this).start();
+		gameStream = new Thread(this);
+		gameStream.start();
 	}
 	
 	public static void main(String[] args) {
@@ -135,8 +152,9 @@ public class Game extends Canvas implements Runnable {
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				mouseInputManager.mouseEntered(e);
-				
+				if(LevelManager.levelNumber == 0) {
+					mouseInputManager.mouseEntered(e);
+				}
 			}
 			
 			@Override
@@ -159,7 +177,7 @@ public class Game extends Canvas implements Runnable {
 				
 			}
 		});
-		JFrame gameWindow = new JFrame("The 12th Dimension");
+		gameWindow = new JFrame("The 12th Dimension");
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameWindow.setIconImage(resources.gameIcon);
 		gameWindow.setLayout(new BorderLayout());
@@ -181,6 +199,11 @@ public class Game extends Canvas implements Runnable {
 	public int getHeight()
 	{
 		return HEIGHT;
+	}
+	
+	public static void stop() {
+		gameStream.stop();
+		gameWindow.dispose();
 	}
 	
 	public long deltaTime()
@@ -207,7 +230,10 @@ public class Game extends Canvas implements Runnable {
 		try
 		{
 			if(LevelManager.levelNumber > 0) {
-				
+				if(LevelManager.levelNumber == 1) {
+					g.setColor(Color.BLACK);
+					g.fillRect(0, 0, WIDTH, HEIGHT);
+				}
 				LevelManager.currentLevel.load(g);
 			}
 			else {
@@ -227,6 +253,18 @@ public class Game extends Canvas implements Runnable {
 				g.drawImage(m_loadBtn, m_loadBtnX, m_loadBtnY, null);
 				g.drawImage(m_optBtn, m_optBtnX, m_optBtnY, null);
 				g.drawImage(m_exitBtn, m_exitBtnX, m_exitBtnY, null);
+				
+				g.setColor(Color.WHITE);
+				g.setFont(ResourcesManager.defaultFont);
+				g.drawString("The 12th Dimension", 5, getHeight()-40);
+				g.drawString(VERSION, 5, getHeight()-10);
+				g.setColor(Color.YELLOW);
+				g.drawString("The Fantasy is real!", getWidth()/2+60, 70+resources.logo.getHeight(null));
+				if(isDevelopmentBuild) {
+					g.drawString("[Development Build]", 110, getHeight()-10);
+				}
+				g.setColor(Color.white);
+				g.drawString("Copyright (C) BDINC 2017", getWidth()-235, getHeight()-10);
 			}
 			
 		}
@@ -244,8 +282,7 @@ public class Game extends Canvas implements Runnable {
 		long last = System.currentTimeMillis();
 		
 		init();
-		
-		//int i = 0;
+		display.init();
 		while(isRunning)
 		{
 			delta = System.currentTimeMillis() - last;

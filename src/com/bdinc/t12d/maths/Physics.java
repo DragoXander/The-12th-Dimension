@@ -3,6 +3,7 @@ package com.bdinc.t12d.maths;
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.main.LevelManager;
 import com.bdinc.t12d.objects.Block;
+import com.bdinc.t12d.objects.Entity;
 
 public class Physics {
 	
@@ -78,6 +79,19 @@ public class Physics {
 					return true;
 				}
 				
+			}
+		}
+		return false;
+	}
+	public static boolean collidesEntity(float px, float py) {
+		//Entity e = null;
+		chekedCellX = Game.player.getCell().x;
+		chekedCellY = Game.player.getCell().y;
+		for(Entity e : LevelManager.currentLevel.entities) {
+			if(e.getCell().x <= chekedCellX+1 && e.getCell().x >= chekedCellX) {
+				if(e.getCell().y == chekedCellY) {
+					return true;
+				}
 			}
 		}
 		return false;

@@ -32,8 +32,8 @@ public class Map {
 		{
 			for(int j = 0; j < verticalCount; j++)
 			{
-				if (x >= cells[i][j].x && x < cells[(i+1)%horizontalCount][j].x) {
-					if (y >= cells[i][j].y && y < cells[i][(j+1)%verticalCount].y) {
+				if (x >= cells[i][j].x && x <= cells[(i+1)%horizontalCount][j].x) {
+					if (y >= cells[i][j].y && y <= cells[i][(j+1)%verticalCount].y) {
 						return new Vector2(i, j);
 					}
 				}
