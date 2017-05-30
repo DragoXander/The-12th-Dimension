@@ -5,9 +5,13 @@ The Java Game
 ### v1.0-build3
 1. Оптимизирована графика
    - Увеличение FPS
-2. Исправлены баги:
+2. Добавлена функция CheckPoint'ов (автосохранение)
+3. Обновлено главное меню игры
+4. Обновлён 1й уровень
+5. Исправлены баги:
    - [BUG:#0005]( https://github.com/MrAlexorX/The-12th-Dimension/issues/6 )
    - [BUG:#0006]( https://github.com/MrAlexorX/The-12th-Dimension/issues/7 )
+   - [BUG:#0001]( https://github.com/MrAlexorX/The-12th-Dimension/issues/1 )
 ### v1.0-build2
 1. Разработан физический движок:
    - Система столкновений
