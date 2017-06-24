@@ -1,22 +1,27 @@
-package com.bdinc.t12d.main;
+package com.bdinc.t12d.level;
 
+import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
-import com.bdinc.t12d.objects.Level;
+import com.bdinc.t12d.objects.Platform;
+import com.bdinc.t12d.objects.VerticalPlatform;
+import com.bdinc.t12d.scenes.ProfilesListDialog;
+import com.bdinc.t12d.settings.ResourcesManager;
 
 public class LevelManager {
 	
-	public static final String BRICK_1 = "BRICK_GRAY";
+	public static final String BRICK_1 = "BRICK_DANGEON";
 	public static final String BRICK_2 = "BRICK_ICE";
-	public static final String BRICK_3 = "BRICK_GREEN";
+	public static final String BRICK_3 = "BRICK_SEWER";
 	public static final String BRICK_4 = "BRICK_GOLD";
-	public static final String BRICK_5 = "Brick5";
-	public static final String BRICK_6 = "Brick6";
-	public static final String BRICK_7 = "Brick7";
+	public static final String BRICK_5 = "BRICK_LIGHT";
+	public static final String BRICK_6 = "BRICK_FIRE";
+	public static final String BRICK_7 = "BRICK_DARK";
+	public static final String VPLATFORM_DANGEON = "PLT_VERTICAL_DANGEON";
 	public static final String FLOOR_1 = "Floor1";
 	public static final String FLOOR_7 = "Floor7";
-	public static final String WALL_1 = "WALL_GRAY";
+	public static final String WALL_1 = "WALL_DANGEON";
 	public static final String BULLET_PACK_DEF = "BulletPack_Default";
 	public static final String FINISH = "FINISH";
 	public static final String COIN10 = "Coin10";
@@ -34,12 +39,20 @@ public class LevelManager {
 	
 	public static void setLevelByID(int ID) {
 		switch(ID) {
+			case -1:
+				levelNumber = -1;
+				break;
 			case 0:
 				levelNumber = 0;
 				break;
 			case 1:
 				lvl = new Level();
-				lvl.create("level1.map");
+				try {
+					lvl.create("level1.map");
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+				
 				levelNumber = 1;
 				setLevel(lvl);
 				break;
@@ -66,6 +79,16 @@ public class LevelManager {
 	public static Level getCurrentLevel()
 	{
 		return currentLevel;
+	}
+	
+	public static Platform getPlatformByName(String name) {
+		switch(name) {
+			case VPLATFORM_DANGEON:
+				VerticalPlatform p = new VerticalPlatform(ResourcesManager.vplatformGray);
+				return p;
+			default:
+				return null;
+		}
 	}
 	
 	public static Entity getEntityByName(String name)
@@ -108,7 +131,7 @@ public class LevelManager {
 				return b;
 			case WALL_1:
 				b = new Block(ResourcesManager.wall1);
-				b.isSolid = false;
+				b.isTrigger = true;
 				return b;
 			default:
 				return null;
@@ -119,10 +142,10 @@ public class LevelManager {
 		Flame f = null;
 		switch(name) {
 			case FLAME_OFF:
-				f = new Flame();
+				f = new Flame(ResourcesManager.flameOff);
 				return f;
 			case FLAME:
-				f = new Flame();
+				f = new Flame(ResourcesManager.flame);
 				f.setActive(true);
 				return f;
 			default:

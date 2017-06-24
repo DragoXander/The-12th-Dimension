@@ -2,9 +2,10 @@ package com.bdinc.t12d.maths;
 
 public class Map {
 	
-	private int horizontalCount = 35;
-	private int verticalCount = 25;
+	private static int horizontalCount = 35;
+	private static int verticalCount = 25;
 	private int size = horizontalCount * verticalCount;
+	
 	public static final int cellSize = 32;
 	
 	public Vector2[][] cells = new Vector2[horizontalCount][verticalCount];
@@ -45,7 +46,6 @@ public class Map {
 	
 	public Vector2 getCell(int x, int y)
 	{
-		//System.out.println("X: "+x+";Y: "+y);
 		return cells[x][y];
 	}
 	

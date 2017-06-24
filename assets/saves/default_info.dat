@@ -1,11 +1,11 @@
 LevelID:1
-Player.position.x:545.0
-Player.position.y:128.5
-Player.position.cellX:17
+Player.position.x:195.0
+Player.position.y:129.0
+Player.position.cellX:6
 Player.position.cellY:4
 Player.health:100
 Player.maxHealth:100
 Player.magic:0
 Player.maxMagic:30
-Flame.cellX:17
+Flame.cellX:6
 Flame.cellY:4

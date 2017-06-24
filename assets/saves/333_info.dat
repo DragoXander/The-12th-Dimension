@@ -1,0 +1,13 @@
+LevelID:1
+Player.position.x:222.89984
+Player.position.y:129.0
+Player.position.cellX:6
+Player.position.cellY:4
+Player.health:100
+Player.maxHealth:100
+Player.magic:0
+Player.maxMagic:30
+Player.money:100
+Player.rubies:20
+Flame.cellX:6
+Flame.cellY:4

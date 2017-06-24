@@ -1,4 +1,4 @@
-package com.bdinc.t12d.maths;
+package com.bdinc.t12d.utils;
 
 public class IntVector2 {
 	

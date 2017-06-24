@@ -1,41 +1,47 @@
 package com.bdinc.t12d.objects;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
+import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
-import com.bdinc.t12d.main.IReferences;
-import com.bdinc.t12d.main.LevelManager;
-import com.bdinc.t12d.maths.IntVector2;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.maths.Vector2;
+import com.bdinc.t12d.settings.ResourcesManager;
+import com.bdinc.t12d.utils.IntVector2;
 
-public class Entity implements IReferences {
+public class Entity {
 	
-	private float x, y, tmp;
+	private float x, y, tmp, enemyTmpX, enemyTmpY;
 	private int cellX, cellY;
 	private Map map = new Map();
 	
 	public String id;
 	
+	private float direction = -0.5f;
+	
 	private int health = 100;
 	private int maxHealth = 100;
+	
+	private int money = 100;
+	private int rubies = 20;
 	
 	private int magicCount = 50;
 	private int maxMagic = 50;
 	
-	private float speed = 0.5f, runSpeed = 1;
+	private float speed = 1f, runSpeed = 1.5f;
 	
-	public boolean isRunning, right, left, jump;
-	private boolean magicUnlimited;
+	public boolean isRunning, right, left, jump, isFalling;
+	private boolean magicUnlimited, eMoving = false;
 	
 	private String name = "#Entity:???";
 	
 	Game game = new Game();
 	
 	private Image texture;
+	private Vector2 position;
 	
 	public Entity(Image texture)
 	{
@@ -50,22 +56,59 @@ public class Entity implements IReferences {
 			System.err.println("Caused by entity<"+this.toString()+">!");
 			e.printStackTrace();
 		}
+		position = map.checkCell(x, y);
 	}
 	
+	public void enemyMove() {
+		//direction = -1;
+		if(!eMoving) {
+			enemyTmpX = this.cellX;
+			enemyTmpY = this.cellY;
+			eMoving = true;
+		}
+		if(eMoving) {
+			if(cellX == enemyTmpX-2) {
+				direction = 0.5f;
+			}
+			else if(cellX == enemyTmpX+2) {
+				direction = -0.5f;
+			}
+			this.x = this.x + direction;
+			setCell(map.checkCell(x, y));
+			
+		}
+		
+	}
+	
+	boolean colRight = false;
 	public void moveRight() {
-		Entity player = Game.player;
-		boolean colRight = Physics.collidesRight(player.posX(), player.posY());
+		colRight = Physics.collidesRight(x, y);
+		position = map.checkCell(x, y);
 		if(!colRight) {
 			if(!isRunning) {
 				if(this.x+map.cellSize < game.getWidth()) {
-					this.x += 1 * speed;
-					setCell(map.checkCell(x, y));
+					if(isFalling && speed > 0.5f) {
+						this.x += 1 * (speed - 0.5f);
+					}
+					else if(isFalling && speed <= 0.5f) {
+						this.x += 1 * speed+0.2;
+					}else {
+						this.x += 1 * speed;
+					}
+					
+					setCell(position);
 				}
 			}
 			else {
 				if(this.x+map.cellSize < game.getWidth()) {
-					this.x += 1 * runSpeed;
-					setCell(map.checkCell(x, y));
+					if(isFalling && runSpeed > 1f) {
+						this.x += 1 * (runSpeed - 1f);
+					}else if(isFalling && runSpeed <= 0.5f) {
+						this.x += 1 * runSpeed+0.2;
+					} else {
+						this.x += 1 * runSpeed;
+					}
+					setCell(position);
 				}
 			}
 		}
@@ -76,44 +119,86 @@ public class Entity implements IReferences {
 		cellY = (int)cell.y;
 	}
 	
+	public float getSpeed() {
+		return speed;
+	}
+	
+	public float getRunSpeed() {
+		return runSpeed;
+	}
+	
+	public void setSpeed(float v) {
+		this.speed = v;
+	}
+	
+	public void setRunSpeed(float v) {
+		this.runSpeed = v;
+	}
+	
+	boolean colBot = false;
+	boolean colTop = false;
 	public void jump() {
-		Entity player = Game.player;
-		boolean colBot = Physics.collidesBottom(player.posX(), player.posY());
-		boolean colTop = Physics.collidesTop(player.posX(), player.posY());
-		
+		colBot = Physics.collidesBottom(x, y);
+		colTop = Physics.collidesTop(x, y);
+		position = map.checkCell(x, y);
 		if(colBot) {
 			tmp = y;
 		}
-		y -= 1;
-		setCell(map.checkCell(x, y));
-		if(y <= tmp-50 || colTop) {
+		y -= 1.5f;
+		setCell(position);
+		if(y <= tmp-60 || colTop) {
 			jump = false;
 		}
 	}
 	
+	boolean colLeft = false;
 	public void moveLeft() {
-		Entity player = Game.player;
-		boolean colLeft = Physics.collidesLeft(player.posX(), player.posY());
+		colLeft = Physics.collidesLeft(x, y);
+		position = map.checkCell(x, y);
 		if(!colLeft) {
 			if(!isRunning) {
 				if(this.x > 0) {
-					this.x -= 1 * speed;
-					setCell(map.checkCell(x, y));
+					if(isFalling && speed > 0.5f) {
+						this.x -= 1 * (speed - 0.5f);
+					} else if(isFalling && speed <= 0.5f) {
+						this.x -= 1 * speed+0.2;
+					}else {
+						this.x -= 1 * speed;
+					}
+					setCell(position);
 				}
 			}
 			else {
 				if(this.x > 0) {
-					this.x -= 1 * runSpeed;
-					setCell(map.checkCell(x, y));
+					if(isFalling && runSpeed > 1f) {
+						this.x -= 1 * (runSpeed - 1f);
+					} else if(isFalling && runSpeed <= 0.5f) {
+						this.x -= 1 * runSpeed+0.2;
+					}else {
+						this.x -= 1 * runSpeed;
+					}
+					setCell(position);
 				}
 			}
 		}
 	}
 	
-	public void attack(Graphics g, Entity target) {
-		g.setColor(Color.YELLOW);
-		g.drawLine((int)this.x, (int)this.y, (int)target.posX(), (int)target.posY());
-		target.decreaseHealth(10);
+	public void attack(Entity target) {
+		Particle magic = new Particle(ResourcesManager.bullet1_01);
+		magic.setSource(this);
+		magic.setPosition(cellX, cellY+1);
+		magic.setSpeed(1);
+		magic.setTarget(target);
+		for(Particle p : LevelManager.currentLevel.particles) {
+			if(!p.active && p.getSource().equals(this)) {
+				LevelManager.currentLevel.particles.add(magic);
+				magic.start();
+			}
+			else if(!p.active && !p.getSource().equals(this)) {
+				LevelManager.currentLevel.particles.add(magic);
+				magic.start();
+			}
+		}
 	}
 	
 	public void setHealth(int health) {
@@ -170,6 +255,46 @@ public class Entity implements IReferences {
 		this.magicCount -= value;
 	}
 	
+	public void setMoney(int value) {
+		this.money = value;
+	}
+	
+	public void increaseMoney(int count) {
+		this.money += count;
+	}
+	
+	public void decreaseMoney(int count) {
+		this.money -= count;
+	}
+	
+	public void increaseMoney() {
+		this.money += 1;
+	}
+	
+	public void decreaseMoney() {
+		this.money -= 1;
+	}
+	
+	public void setRubyCount(int value) {
+		this.rubies = value;
+	}
+	
+	public void increaseRubyCount(int count) {
+		this.rubies += count;
+	}
+	
+	public void decreaseRubyCount(int count) {
+		this.rubies -= count;
+	}
+	
+	public void increaseRubyCount() {
+		this.rubies += 1;
+	}
+	
+	public void decreaseRubyCount() {
+		this.rubies -= 1;
+	}
+	
 	public void incY(float value) {
 		this.y += value;
 	}
@@ -188,6 +313,14 @@ public class Entity implements IReferences {
 	
 	public int getMaxHealth() {
 		return this.maxHealth;
+	}
+	
+	public int getMoney() {
+		return this.money;
+	}
+	
+	public int getRubyCount() {
+		return this.rubies;
 	}
 	
 	public Image getSprite()

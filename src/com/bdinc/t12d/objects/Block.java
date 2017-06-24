@@ -3,26 +3,23 @@ package com.bdinc.t12d.objects;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import javax.swing.ImageIcon;
-
+import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
-import com.bdinc.t12d.main.IReferences;
-import com.bdinc.t12d.main.LevelManager;
-import com.bdinc.t12d.main.ResourcesManager;
-import com.bdinc.t12d.maths.IntVector2;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Vector2;
+import com.bdinc.t12d.types.ISolidObject;
+import com.bdinc.t12d.utils.IntVector2;
 
-public class Block implements IReferences {
+public class Block implements ISolidObject {
 	
-	private Image sprite;
-	private float x, y;
-	private int cellX, cellY;
-	private Map map = new Map();
-	public boolean isSolid = true;
+	protected Image sprite;
+	protected float x, y;
+	protected int cellX, cellY;
+	protected Map map = new Map();
 	private Game game = new Game();
+	public boolean isTrigger;
 	
-	public String id;
+	public String id = "block";
 	
 	public Block(Image sprite)
 	{
@@ -37,7 +34,6 @@ public class Block implements IReferences {
 			System.err.println("Caused by block<"+this.toString()+">!");
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public Image getSprite()
@@ -54,7 +50,7 @@ public class Block implements IReferences {
 		}
 		catch(Exception e)
 		{
-			System.err.println("Can't set the location to block<"+this.toString()+">!");
+			System.err.println("Can't set the location to "+id+"<"+this.toString()+">!");
 		}
 		
 		this.cellX = x;
@@ -97,7 +93,7 @@ public class Block implements IReferences {
 	{
 		if(sprite == null)
 		{
-			System.err.println("No sprite(null)! Caused by block<"+this.toString()+">!");
+			System.err.println("No sprite(null)! Caused by "+id+"<"+this.toString()+">!");
 		}
 		try
 		{
@@ -105,10 +101,28 @@ public class Block implements IReferences {
 		}
 		catch(Exception e)
 		{
-			System.err.println("Can't draw the block<"+this.toString()+">!");
+			System.err.println("Can't draw the "+id+"<"+this.toString()+">!");
 			e.printStackTrace();
 		}
 		
 	}
-	
+
+	@Override
+	public void incY(float value) {
+		y += value;
+		
+	}
+
+	@Override
+	public void decY(float value) {
+		y -= value;
+		
+	}
+
+	@Override
+	public void setCell(int x, int y) {
+		cellX = x;
+		cellY = y;
+		
+	}
 }

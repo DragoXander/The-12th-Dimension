@@ -1,48 +1,83 @@
 package com.bdinc.t12d.graphics;
 
 import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
+import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
-
+import com.bdinc.t12d.level.Level;
+import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
-import com.bdinc.t12d.main.IReferences;
-import com.bdinc.t12d.main.LevelManager;
-import com.bdinc.t12d.maths.IntVector2;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Physics;
+import com.bdinc.t12d.maths.Vector2;
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
-import com.bdinc.t12d.objects.Level;
+import com.bdinc.t12d.objects.Particle;
+import com.bdinc.t12d.objects.Platform;
+import com.bdinc.t12d.utils.IntVector2;
 
-public class DisplayManager implements IReferences {
+public class DisplayManager {
 	
-	private Canvas game = Game.canvas;
-	Level lvl1 = new Level();
-	private boolean collisionBottom;
-	private Entity player;
-	private IntVector2 plCell, flameCell;
 	private Map map = new Map();
+	
+	private ArrayList<Entity> entities;
+	private ArrayList<Block> blocks;
+	private ArrayList<Flame> flames;
+	private ArrayList<Particle> particles;
 	
 	public void init()
 	{
 		map.init();
 	}
 	
+	boolean collisionBottom;
+	Entity player;
+	IntVector2 plCell, flameCell;
+	
 	public void update(long delta)
 	{
+		player = Game.player;
 		if(LevelManager.levelNumber > 0) {
-			player = Game.player;
+			
+			Vector2 checkedCell = null;
+			try {
+				checkedCell = map.checkCell(player.posX(), player.posY());
+			}
+			catch(Exception e) {
+				System.err.println("No reference to 'Player'! Can't do this!");
+				e.printStackTrace();
+			}
+			
+			entities = LevelManager.currentLevel.entities;
+			blocks = LevelManager.currentLevel.blocks;
+			flames = LevelManager.currentLevel.flames;
+			particles = LevelManager.currentLevel.particles;
 			collisionBottom = Physics.collidesBottom(player.posX(), player.posY());
 			plCell = Game.player.getCell();
 			
-			if(!collisionBottom && !player.jump) {
-				player.incY(0.5f);
-				player.setCell(map.checkCell(player.posX(), player.posY()));
+			for(Block b : blocks) {
+				if(!b.isSolid) {
+					b.incY(Physics.gravity);
+				}
 			}
+			
+			for(Block b : blocks) {
+				if(b instanceof Platform) {
+					((Platform)b).move();
+					//System.out.println(""+b.getCell().x);
+				}
+				
+			}
+			
+			if(!collisionBottom && !player.jump) {
+				player.incY(Physics.gravity);
+				player.setCell(checkedCell);
+				player.isFalling = true;
+			}
+			else {
+				player.isFalling = false;
+			}
+			
 			if(Game.player.jump) {
 				player.jump();
 			}
@@ -52,76 +87,37 @@ public class DisplayManager implements IReferences {
 			if(Game.player.right) {
 				player.moveRight();
 			}
-			for(Flame f : LevelManager.currentLevel.flames) {
+			
+			for(Flame f : flames) {
 				flameCell = f.getCell();
 				if(plCell.x == flameCell.x) {
 					if(plCell.y == flameCell.y) {
 						f.activate();
-						//System.err.println("PlayerCell:["+plCell.x+","+plCell.y+"];");
 					}
 				}
-				System.err.println("PlayerCell:["+plCell.x+","+plCell.y+"];");
 			}
-//			if(Physics.collidesEntity(player.posX(), player.posY())) {
-//				player.decreaseHealth(10);
+			
+			for(Entity e : entities) {
+				if(!e.equals(player)) {
+					e.enemyMove();
+				}
+			}
+//			if(particles.size() > 0) {
+//				for(Particle p : particles) {
+//					if(p.active) {
+//						if(p.getTarget().getCell().x > p.getSource().getCell().x) {
+//							p.moveTo(Particle.DIRECTION_RIGHT);
+//						}
+//						if(p.getTarget().getCell().x < p.getSource().getCell().x) {
+//							p.moveTo(Particle.DIRECTION_LEFT);
+//						}
+//					}
+//					else {
+//						particles.remove(p);
+//					}
+//				}
 //			}
 		}
-		
-		
-	}
-	
-	public void initRender(Graphics g)
-	{
-		BufferStrategy bs = game.getBufferStrategy();
-		if(bs == null)
-		{
-			game.createBufferStrategy(2);
-			game.requestFocus();
-			return;
-		}
-		g = bs.getDrawGraphics();
-		g.setColor(Color.black);
-		g.fillRect(0, 0, game.getWidth(), game.getHeight());
-	}
-	
-	public void dispose(BufferStrategy bs, Graphics g)
-	{
-		g.dispose();
-		bs.show();
-	}
-	
-	public void render(Graphics g)
-	{
-		BufferStrategy bs = new Game().getBufferStrategy();
-		if(bs == null)
-		{
-			new Game().createBufferStrategy(2);
-			new Game().requestFocus();
-			return;
-		}
-		g = bs.getDrawGraphics();
-		g.setColor(Color.black);
-		g.fillRect(0, 0, game.getWidth(), game.getHeight());
-//		try
-//		{
-//			for(Block b : LevelManager.currentLevel.blocks) {
-//				if(g == null)
-//				{
-//					System.err.println("Graphics lost!");
-//				}
-//				if(b.getSprite() == null)
-//				{
-//					System.err.println("No sprite in block<"+b.toString()+">!");
-//				}
-//				g.drawImage(new ImageIcon("assets/sprites/blocks/brick6.png").getImage(), 0, 0, null);
-//				//b.draw(g);
-//			}
-//		}
-//		catch(Exception e)
-//		{
-//			e.printStackTrace();
-//		}
-		dispose(bs, g);
 	}
 	
 }

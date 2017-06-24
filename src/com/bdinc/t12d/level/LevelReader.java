@@ -1,4 +1,4 @@
-package com.bdinc.t12d.main;
+package com.bdinc.t12d.level;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,26 +11,26 @@ import javax.swing.JOptionPane;
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
-import com.bdinc.t12d.objects.Level;
+import com.bdinc.t12d.objects.Platform;
+import com.bdinc.t12d.utils.Container;
 
-public class LevelReader implements IReferences {
+public class LevelReader {
 	
 	private static int tmpIndex = 0;
 	private static int blockCount;
 	private static boolean entity = false;
 	private static boolean flame = false;
+	private static boolean platform = false;
 	
 	private static Container cont = new Container(null, null);
 	
 	public Level readLevel(String file)
 	{
-		//System.out.println("A:");
 		BufferedReader reader = null;
 		Level lvl = new Level();
 		ArrayList<Block> blocks = new ArrayList<Block>();
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		ArrayList<Flame> flames = new ArrayList<Flame>();
-		//HashMap<ArrayList<Block>, ArrayList<Entity>> res = new HashMap<ArrayList<Block>, ArrayList<Entity>>();
 		try
 		{
 			reader = new BufferedReader(new FileReader(file));
@@ -39,7 +39,9 @@ public class LevelReader implements IReferences {
 			//System.out.println("A:"+file);
 			while((line = reader.readLine()) != null)
 			{
-				//System.out.println("A:");
+				if(line.startsWith("\t")) {
+					line = line.replace("\t", "").trim();
+				}
 				text += line;
 			}
 			//System.out.println("A:"+text);
@@ -115,6 +117,11 @@ public class LevelReader implements IReferences {
 			else {
 				entity = false;
 			}
+			if(n.startsWith("PLT")) {
+				platform = true;
+			} else {
+				platform = false;
+			}
 			if(n.startsWith("FLAME")) {
 				flame = true;
 			}
@@ -122,85 +129,123 @@ public class LevelReader implements IReferences {
 				flame = false;
 			}
 			String[] vec = map.get(n);
-			
-			for(int i = 0; i < vec.length; i++)
+			Platform p = LevelManager.getPlatformByName(n);
+			if(platform) {
+				for(int i = 0; i < 4; i++) {
+					//System.out.println("property: "+vec[i]);
+					String[] propertyParts = vec[i].split("=");
+					//System.out.println(propertyParts[1]);
+					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
+						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
+					}
+					if (propertyParts[1].endsWith(" ") || propertyParts[1].startsWith(" ")) {
+						propertyParts[1] = propertyParts[1].replace(" ", "").trim();
+						
+					}
+					switch(propertyParts[0]) {
+						case "speed":
+							//char[] ppc = propertyParts[1].toCharArray();
+							String v = propertyParts[1].replace(',', '.');
+							p.setSpeed(Float.parseFloat(v));
+							break;
+						case "count":
+							p.setPathCount(Integer.parseInt(propertyParts[1]));
+							break;
+						case "direction":
+							p.setDirection(Integer.parseInt(propertyParts[1]));
+							break;
+						case "position":
+							String[] cords = propertyParts[1].split(",");
+							int x = Integer.parseInt(cords[0]);
+							int y = Integer.parseInt(cords[1]);
+							p.setLocation(x, y);
+							break;
+					}
+				}
+				//System.out.println(""+p.getCell().x);
+				blocks.add(p);
+			} 
+			else 
 			{
-				String[] v = vec[i].split(",");
-				if(isCharExistIn(v[0], '-'))
+				for(int i = 0; i < vec.length; i++)
 				{
-					String[] v_pt2 = v[0].split("-");
-					for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1])+1; j+=1)
+					String[] v = vec[i].split(",");
+					if(isCharExistIn(v[0], '-'))
+					{
+						String[] v_pt2 = v[0].split("-");
+						for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1])+1; j+=1)
+						{
+							if(entity)
+							{
+								Entity ent = LevelManager.getEntityByName(n);
+								ent.setPosition(j, Integer.parseInt(v[1]));
+								entities.add(ent);
+							}
+							else if(flame) {
+								Flame f = LevelManager.getFlame(n);
+								f.setLocation(j, Integer.parseInt(v[1]));
+								flames.add(f);
+							}
+							else if(!entity && !flame && !platform)
+							{
+								Block b = LevelManager.getObjectByName(n);
+								b.setLocation(j, Integer.parseInt(v[1]));
+								blocks.add(b);
+							}
+								
+						}
+					}
+					else if(isCharExistIn(v[1], '-'))
+					{
+						String[] v_pt2 = v[1].split("-");
+						for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1])+1; j+=1)
+						{
+							if(entity)
+							{
+								Entity ent = LevelManager.getEntityByName(n);
+								ent.setPosition(Integer.parseInt(v[0]), j);
+								entities.add(ent);
+							}
+							else if(flame) {
+								Flame f = LevelManager.getFlame(n);
+								f.setLocation(Integer.parseInt(v[0]), j);
+								flames.add(f);
+							}
+							else if(!entity && !flame && !platform)
+							{
+								Block b = LevelManager.getObjectByName(n);
+								b.setLocation(Integer.parseInt(v[0]), j);
+								blocks.add(b);
+							}
+								
+						}
+					}
+					else
 					{
 						if(entity)
 						{
 							Entity ent = LevelManager.getEntityByName(n);
-							ent.setPosition(j, Integer.parseInt(v[1]));
+							ent.setPosition(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							entities.add(ent);
 						}
 						else if(flame) {
 							Flame f = LevelManager.getFlame(n);
-							f.setPosition(j, Integer.parseInt(v[1]));
+							f.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							flames.add(f);
 						}
-						else if(!entity && !flame)
+						else if(!entity && !flame && !platform)
 						{
 							Block b = LevelManager.getObjectByName(n);
-							b.setLocation(j, Integer.parseInt(v[1]));
+							b.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							blocks.add(b);
+								
 						}
-						
-					}
-				}
-				else if(isCharExistIn(v[1], '-'))
-				{
-					String[] v_pt2 = v[1].split("-");
-					for(int j = Integer.parseInt(v_pt2[0]); j < Integer.parseInt(v_pt2[1])+1; j+=1)
-					{
-						if(entity)
-						{
-							Entity ent = LevelManager.getEntityByName(n);
-							ent.setPosition(Integer.parseInt(v[0]), j);
-							entities.add(ent);
-						}
-						else if(flame) {
-							Flame f = LevelManager.getFlame(n);
-							f.setPosition(Integer.parseInt(v[0]), j);
-							flames.add(f);
-						}
-						else if(!entity && !flame)
-						{
-							Block b = LevelManager.getObjectByName(n);
-							b.setLocation(Integer.parseInt(v[0]), j);
-							blocks.add(b);
-						}
-						
-					}
-				}
-				else
-				{
-					if(entity)
-					{
-						Entity ent = LevelManager.getEntityByName(n);
-						ent.setPosition(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
-						entities.add(ent);
-					}
-					else if(flame) {
-						Flame f = LevelManager.getFlame(n);
-						f.setPosition(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
-						System.err.println("X:"+Integer.parseInt(v[0]));
-						flames.add(f);
-					}
-					else if(!entity && !flame)
-					{
-						Block b = LevelManager.getObjectByName(n);
-						b.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
-						blocks.add(b);
-						
+							
 					}
 					
 				}
-				
 			}
+			
 		}
 	}
 	
