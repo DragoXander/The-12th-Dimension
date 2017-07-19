@@ -3,6 +3,8 @@ package com.bdinc.t12d.objects;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
@@ -10,9 +12,11 @@ import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.maths.Vector2;
 import com.bdinc.t12d.settings.ResourcesManager;
+import com.bdinc.t12d.ui.Inventory;
+import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.IntVector2;
 
-public class Entity {
+public class Entity implements Serializable {
 	
 	private float x, y, tmp, enemyTmpX, enemyTmpY;
 	private int cellX, cellY;
@@ -20,21 +24,31 @@ public class Entity {
 	
 	public String id;
 	
+	public ArrayList<Item> invList = new ArrayList<Item>();
+	
 	private float direction = -0.5f;
 	
 	private int health = 100;
 	private int maxHealth = 100;
 	
+	private int ammo = 30;
+	private int maxAmmo = 30;
 	private int money = 100;
 	private int rubies = 20;
 	
 	private int magicCount = 50;
 	private int maxMagic = 50;
 	
+	public boolean inventoryShow;
+	public Inventory inventory;
+	
+	public static Object interactiveTarget;
 	private float speed = 1f, runSpeed = 1.5f;
 	
-	public boolean isRunning, right, left, jump, isFalling;
+	public boolean isRunning, right, left, jump, isFalling, isLifting, isFlying, isInteracting;
 	private boolean magicUnlimited, eMoving = false;
+	
+	private Platform liftingObject;
 	
 	private String name = "#Entity:???";
 	
@@ -45,6 +59,7 @@ public class Entity {
 	
 	public Entity(Image texture)
 	{
+		inventory = new Inventory();
 		this.texture = texture;
 		try
 		{
@@ -60,23 +75,37 @@ public class Entity {
 	}
 	
 	public void enemyMove() {
-		//direction = -1;
-		if(!eMoving) {
-			enemyTmpX = this.cellX;
-			enemyTmpY = this.cellY;
-			eMoving = true;
-		}
-		if(eMoving) {
-			if(cellX == enemyTmpX-2) {
-				direction = 0.5f;
+		if(!Game.paused) {
+			if(!eMoving) {
+				enemyTmpX = this.cellX;
+				enemyTmpY = this.cellY;
+				eMoving = true;
 			}
-			else if(cellX == enemyTmpX+2) {
-				direction = -0.5f;
+			if(eMoving) {
+				if(cellX == enemyTmpX-2) {
+					direction = 0.5f;
+				}
+				else if(cellX == enemyTmpX+2) {
+					direction = -0.5f;
+				}
+				this.x = this.x + direction;
+				setCell(map.checkCell(x, y));
+				
 			}
-			this.x = this.x + direction;
-			setCell(map.checkCell(x, y));
-			
 		}
+		
+	}
+	
+	public void move(float speed) {
+		position = map.checkCell(x, y);
+		this.x += speed;
+		setCell(position);
+	}
+	
+	public void moveUp(float speed) {
+		position = map.checkCell(x, y);
+		this.y += speed;
+		setCell(position);
 		
 	}
 	
@@ -84,31 +113,33 @@ public class Entity {
 	public void moveRight() {
 		colRight = Physics.collidesRight(x, y);
 		position = map.checkCell(x, y);
-		if(!colRight) {
-			if(!isRunning) {
-				if(this.x+map.cellSize < game.getWidth()) {
-					if(isFalling && speed > 0.5f) {
-						this.x += 1 * (speed - 0.5f);
+		if(!Game.paused) {
+			if(!colRight) {
+				if(!isRunning) {
+					if(this.x+map.cellSize < game.getWidth()) {
+						if(isFalling && speed > 0.5f) {
+							this.x += 1 * (speed - 0.5f);
+						}
+						else if(isFalling && speed <= 0.5f) {
+							this.x += 1 * speed+0.2;
+						}else {
+							this.x += 1 * speed;
+						}
+						
+						setCell(position);
 					}
-					else if(isFalling && speed <= 0.5f) {
-						this.x += 1 * speed+0.2;
-					}else {
-						this.x += 1 * speed;
-					}
-					
-					setCell(position);
 				}
-			}
-			else {
-				if(this.x+map.cellSize < game.getWidth()) {
-					if(isFalling && runSpeed > 1f) {
-						this.x += 1 * (runSpeed - 1f);
-					}else if(isFalling && runSpeed <= 0.5f) {
-						this.x += 1 * runSpeed+0.2;
-					} else {
-						this.x += 1 * runSpeed;
+				else {
+					if(this.x+map.cellSize < game.getWidth()) {
+						if(isFalling && runSpeed > 1f) {
+							this.x += 1 * (runSpeed - 1f);
+						}else if(isFalling && runSpeed <= 0.5f) {
+							this.x += 1 * runSpeed+0.2;
+						} else {
+							this.x += 1 * runSpeed;
+						}
+						setCell(position);
 					}
-					setCell(position);
 				}
 			}
 		}
@@ -127,6 +158,14 @@ public class Entity {
 		return runSpeed;
 	}
 	
+	public Platform getLiftingObject() {
+		return this.liftingObject;
+	}
+	
+	public void setLiftingObject(Platform p) {
+		this.liftingObject = p;
+	}
+	
 	public void setSpeed(float v) {
 		this.speed = v;
 	}
@@ -141,13 +180,15 @@ public class Entity {
 		colBot = Physics.collidesBottom(x, y);
 		colTop = Physics.collidesTop(x, y);
 		position = map.checkCell(x, y);
-		if(colBot) {
-			tmp = y;
-		}
-		y -= 1.5f;
-		setCell(position);
-		if(y <= tmp-60 || colTop) {
-			jump = false;
+		if(!Game.paused) {
+			if(colBot) {
+				tmp = y;
+			}
+			y -= 1.5f;
+			setCell(position);
+			if(y <= tmp-60 || colTop) {
+				jump = false;
+			}
 		}
 	}
 	
@@ -155,32 +196,35 @@ public class Entity {
 	public void moveLeft() {
 		colLeft = Physics.collidesLeft(x, y);
 		position = map.checkCell(x, y);
-		if(!colLeft) {
-			if(!isRunning) {
-				if(this.x > 0) {
-					if(isFalling && speed > 0.5f) {
-						this.x -= 1 * (speed - 0.5f);
-					} else if(isFalling && speed <= 0.5f) {
-						this.x -= 1 * speed+0.2;
-					}else {
-						this.x -= 1 * speed;
+		if(!Game.paused) {
+			if(!colLeft) {
+				if(!isRunning) {
+					if(this.x > 0) {
+						if(isFalling && speed > 0.5f) {
+							this.x -= 1 * (speed - 0.5f);
+						} else if(isFalling && speed <= 0.5f) {
+							this.x -= 1 * speed+0.2;
+						}else {
+							this.x -= 1 * speed;
+						}
+						setCell(position);
 					}
-					setCell(position);
 				}
-			}
-			else {
-				if(this.x > 0) {
-					if(isFalling && runSpeed > 1f) {
-						this.x -= 1 * (runSpeed - 1f);
-					} else if(isFalling && runSpeed <= 0.5f) {
-						this.x -= 1 * runSpeed+0.2;
-					}else {
-						this.x -= 1 * runSpeed;
+				else {
+					if(this.x > 0) {
+						if(isFalling && runSpeed > 1f) {
+							this.x -= 1 * (runSpeed - 1f);
+						} else if(isFalling && runSpeed <= 0.5f) {
+							this.x -= 1 * runSpeed+0.2;
+						}else {
+							this.x -= 1 * runSpeed;
+						}
+						setCell(position);
 					}
-					setCell(position);
 				}
 			}
 		}
+		
 	}
 	
 	public void attack(Entity target) {
@@ -190,15 +234,32 @@ public class Entity {
 		magic.setSpeed(1);
 		magic.setTarget(target);
 		for(Particle p : LevelManager.currentLevel.particles) {
-			if(!p.active && p.getSource().equals(this)) {
-				LevelManager.currentLevel.particles.add(magic);
-				magic.start();
-			}
-			else if(!p.active && !p.getSource().equals(this)) {
-				LevelManager.currentLevel.particles.add(magic);
-				magic.start();
+			if(p.getTarget().equals(magic.getTarget())) {
+				if(p.hit) {
+					LevelManager.currentLevel.particles.add(magic);
+					p.active = false;
+				}
 			}
 		}
+		if(LevelManager.currentLevel.particles.size() == 0) {
+			LevelManager.currentLevel.particles.add(magic);
+		}
+	}
+	
+	public void setAmmo(int value) {
+		this.ammo = value;
+	}
+	
+	public void setMaxAmmo(int value) {
+		this.maxAmmo = value;
+	}
+	
+	public void increaseAmmo(int value) {
+		this.ammo += value;
+	}
+	
+	public void decreaseAmmo(int value) {
+		this.ammo -= value;
 	}
 	
 	public void setHealth(int health) {
@@ -299,6 +360,14 @@ public class Entity {
 		this.y += value;
 	}
 	
+	public int getAmmo() {
+		return this.ammo;
+	}
+	
+	public int getMaxAmmo() {
+		return this.maxAmmo;
+	}
+	
 	public int getMagicCount() {
 		return this.magicCount;
 	}
@@ -352,6 +421,10 @@ public class Entity {
 		this.cellY = y;
 		this.x = pos.x;
 		this.y = pos.y;
+	}
+	
+	public int getX() {
+		return (int)x;
 	}
 	
 	public IntVector2 getCell()

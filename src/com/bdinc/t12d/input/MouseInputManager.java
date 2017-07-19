@@ -16,10 +16,17 @@ import com.bdinc.t12d.level.Level;
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.objects.Flame;
+import com.bdinc.t12d.objects.Item;
+import com.bdinc.t12d.objects.MakarovGun;
+import com.bdinc.t12d.scenes.DLCListDialog;
+import com.bdinc.t12d.scenes.LangListDialog;
 import com.bdinc.t12d.scenes.ProfilesListDialog;
 import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UICell;
+import com.bdinc.t12d.ui.UISlot;
+import com.bdinc.t12d.utils.Debug;
+import com.bdinc.t12d.utils.LangManager;
 
 public class MouseInputManager implements MouseListener {
 	
@@ -29,21 +36,47 @@ public class MouseInputManager implements MouseListener {
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if(Game.paused) {
+			if(e.getX() >= Game.m_continueBtnX && e.getX() <= Game.m_continueBtnX+300) {
+				if(e.getY() >= Game.m_continueBtnY && e.getY() <= Game.m_continueBtnY+45) {
+					Game.paused = false;
+				}
+			}
+			if(e.getX() >= Game.m_optionsBtnX && e.getX() <= Game.m_optionsBtnX+300) {
+				if(e.getY() >= Game.m_optionsBtnY && e.getY() <= Game.m_optionsBtnY+45) {
+					
+				}
+			}
+			if(e.getX() >= Game.m_exmBtnX && e.getX() <= Game.m_exmBtnX+300) {
+				if(e.getY() >= Game.m_exmBtnY && e.getY() <= Game.m_exmBtnY+45) {
+					Game.paused = false;
+					LevelManager.setLevelByID(0);
+				}
+			}
+		}
 		if(LevelManager.levelNumber == 0) {
 			if(e.getX() >= Game.m_playBtnX && e.getX() <= Game.m_playBtnX+Game.m_playBtn.getWidth(null)) {
 				if(e.getY() >= Game.m_playBtnY && e.getY() <= Game.m_playBtnY+Game.m_playBtn.getHeight(null)) {
-					if(ResourcesManager.getProfilesList().size() > 0 && !Options.profileName.equals("Unknown Player (???)")) {
+					if(ResourcesManager.getProfilesList().size() > 0 && !Options.profileName.equals(Options.DEFAULT_PROFILE)) {
 						sav1 = new File("assets/saves/"+Options.profileName+"_info.dat");
 						sav2 = new File("assets/saves/"+Options.profileName+"_blocks.dat");
 						sav3 = new File("assets/saves/"+Options.profileName+"_entities.dat");
-						if(!sav1.exists() || !sav2.exists() || !sav3.exists()) {
-							JOptionPane.showMessageDialog(null, "Data files are damaged!\nCan't load the game!", ""+sav1.getAbsolutePath(), 0);
+						if((!sav1.exists() || !sav2.exists() || !sav3.exists()) && !Options.profileName.equals(Options.DEFAULT_PROFILE)) {
+							JOptionPane.showMessageDialog(null, "Data files are damaged!\nCan't load the game!", "Error!"+sav1.getAbsolutePath(), 0);
 						} else {
 							try {
 								if(loadGame() != -1) {
+									Game.player.invList.add(new MakarovGun(ResourcesManager.makarovGun));
+									Game.player.invList.add(new MakarovGun(ResourcesManager.key));
+									Game.player.invList.add(new MakarovGun(ResourcesManager.makarovGun));
+									Game.player.invList.add(new MakarovGun(ResourcesManager.key));
+									MakarovGun mkg = new MakarovGun(ResourcesManager.makarovGun);
+									mkg.setCount(10);
+									Game.player.invList.add(mkg);
+									Game.player.invList.add(new MakarovGun(ResourcesManager.key));
 									
 								} else {
-									JOptionPane.showMessageDialog(null, "Error with loading the game!", "Error", 0);
+									JOptionPane.showMessageDialog(null, ResourcesManager.logErrLoadingGame, "Error", 0);
 								}
 							} catch(Exception ex) {
 								ex.printStackTrace();
@@ -52,7 +85,7 @@ public class MouseInputManager implements MouseListener {
 						}
 					}
 					else {
-						JOptionPane.showMessageDialog(null, "Create a profile before you will start playing!", "Error", 0);
+						JOptionPane.showMessageDialog(null, ResourcesManager.logErrNullProfile, "Error", 0);
 					}                                                                       
 				}
 			}
@@ -80,7 +113,77 @@ public class MouseInputManager implements MouseListener {
 					LevelManager.setLevelByID(-1);
 				}
 			}
-		} 
+			//ExtraBtn
+			if(e.getX() >= Game.m_extraBtnX && e.getX() <= Game.m_extraBtnX+Game.m_extraBtn.getWidth(null)) {
+				if(e.getY() >= Game.m_extraBtnY && e.getY() <= Game.m_extraBtnY+Game.m_extraBtn.getHeight(null)) {
+					LevelManager.setLevelByID(-2);
+				}
+			}
+			//LangBtn
+			if(e.getX() >= Game.m_langBtnX && e.getX() <= Game.m_langBtnX+Game.m_langBtnWidth) {
+				if(e.getY() >= Game.m_langBtnY && e.getY() <= Game.m_langBtnY+Game.m_langBtnHeight) {
+					LevelManager.setLevelByID(-3);
+				}
+			}
+		}
+		else if(LevelManager.levelNumber == -3)
+		{
+			if(e.getX() >= LangListDialog.btnBackX && e.getX() <= LangListDialog.btnBackX+LangListDialog.btnBackWidth) {
+				if(e.getY() >= LangListDialog.btnBackY && e.getY() <= LangListDialog.btnBackY+LangListDialog.btnBackHeight) {
+					LevelManager.setLevelByID(0);
+				}
+			}
+			for(UICell c : LangListDialog.lang) {
+				if(!c.isSelected) {
+					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
+						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
+							c.isSelected = true;
+							LangManager.setLanguage(c.getDescription());
+						}
+					}
+				}
+			}
+		}
+		else if(LevelManager.levelNumber == -2)
+		{
+			if(e.getX() >= DLCListDialog.btnBackX && e.getX() <= DLCListDialog.btnBackX+DLCListDialog.btnBackWidth) {
+				if(e.getY() >= DLCListDialog.btnBackY && e.getY() <= DLCListDialog.btnBackY+DLCListDialog.btnBackHeight) {
+					LevelManager.setLevelByID(0);
+				}
+			}
+			if(e.getX() >= DLCListDialog.btnPlayX && e.getX() <= DLCListDialog.btnPlayX+DLCListDialog.btnPlayWidth) {
+				if(e.getY() >= DLCListDialog.btnPlayY && e.getY() <= DLCListDialog.btnPlayY+DLCListDialog.btnPlayHeight) {
+					if(Options.profileName.equals(Options.DEFAULT_PROFILE)) {
+						JOptionPane.showMessageDialog(null, ResourcesManager.logErrNullProfile, "Error!", 0);
+					} else {
+						
+						if(loadExtraGame(DLCListDialog.selected.getTitle()) != -1) {
+							Debug.log("Extra level: <"+DLCListDialog.selected.getTitle()+">");
+							Debug.log("Has been loaded successfully!");
+						} else {
+							saveExtraGame(Options.profileName, DLCListDialog.selected.getTitle());
+							JOptionPane.showMessageDialog(null, ResourcesManager.logMsgDlcFirstPlayOrError, "Warning!", 1);
+						}
+						Level lvl = new Level();
+						lvl.isExtra = true;
+						lvl.create(DLCListDialog.selected.getTitle()+".map");
+						//LevelManager.levelNumber = lvl.getID();
+						LevelManager.setLevel(lvl);
+						LevelManager.levelNumber = lvl.getID();
+					}
+					
+				}
+			}
+			for(UICell c : DLCListDialog.dlc) {
+				if(!c.isSelected) {
+					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
+						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
+							c.isSelected = true;
+						}
+					}
+				}
+			}
+		}
 		else if (LevelManager.levelNumber == -1) 
 		{
 			if(e.getX() >= ProfilesListDialog.btnBackX && e.getX() <= ProfilesListDialog.btnBackX+ProfilesListDialog.btnBackWidth) {
@@ -90,45 +193,6 @@ public class MouseInputManager implements MouseListener {
 			}
 			if(e.getX() >= ProfilesListDialog.btnDelX && e.getX() <= ProfilesListDialog.btnDelX+ProfilesListDialog.btnDelWidth) {
 				if(e.getY() >= ProfilesListDialog.btnDelY && e.getY() <= ProfilesListDialog.btnDelY+ProfilesListDialog.btnDelHeight) {
-//					for(UICell c : ProfilesListDialog.profiles) {
-//						if(c.isSelected) {
-//							File s1 = new File("assets/saves/"+c.getTitle()+"_info.dat");
-//							File s2 = new File("assets/saves/"+c.getTitle()+"_blocks.dat");
-//							File s3 = new File("assets/saves/"+c.getTitle()+"_entities.dat");
-//							s1.delete();
-//							s2.delete();
-//							s3.delete();
-//							BufferedReader reader = null;
-//							try {
-//								reader = new BufferedReader(new FileReader("assets/saves/config/profileList.dat"));
-//								String line = "";
-//								ArrayList<String> lines = new ArrayList<String>();
-//								while((line = reader.readLine()) != null) {
-//									lines.add(line);
-//								}
-//								int index = 0;
-//								for(String ln : lines) {
-//									if(ln.equals(c.getTitle())) {
-//										
-//									}
-//									index += 1;
-//								}
-//							} catch (IOException ex) {
-//								ex.printStackTrace();
-//							} finally {
-//								if(reader != null) {
-//									try {
-//										reader.close();
-//									} catch(IOException ex) {
-//										ex.printStackTrace();
-//									}
-//								}
-//							}
-//							ProfilesListDialog.profiles.remove(c);
-//						}
-//					}
-//					ProfilesListDialog.init();
-//					ProfilesListDialog.resetInfo();
 				}
 			}
 			if(e.getX() >= ProfilesListDialog.btnNewX && e.getX() <= ProfilesListDialog.btnNewX+ProfilesListDialog.btnNewWidth) {
@@ -163,9 +227,12 @@ public class MouseInputManager implements MouseListener {
 						saveGame(profile);
 						ProfilesListDialog.resetAll();
 						ProfilesListDialog.init();
-						for(UICell c : ProfilesListDialog.profiles) {
-							c.setY(c.getY()-101);
+						if(ProfilesListDialog.profiles.size() > 0) {
+							for(UICell c : ProfilesListDialog.profiles) {
+								c.setY(c.getY()-101);
+							}
 						}
+						
 					}
 					
 				}
@@ -175,8 +242,8 @@ public class MouseInputManager implements MouseListener {
 					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
 						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
 							c.isSelected = true;
-							ProfilesListDialog.viewinfo();
 							Options.profileName = c.getTitle();
+							ProfilesListDialog.viewinfo();
 							for(UICell cell : ProfilesListDialog.activeCells) {
 								cell.isSelected = false;
 							}
@@ -201,18 +268,71 @@ public class MouseInputManager implements MouseListener {
 		return res;
 	}
 	
+	public void saveExtraGame(String profile, String lvlName) {
+		BufferedWriter writer1 = null;
+		BufferedWriter writer2 = null;
+		try {
+			writer1 = new BufferedWriter(new FileWriter("assets/saves/"+profile+"_"+lvlName+"_info.dat"));
+			writer1.write("Level:DANGEON"+"\n");
+			writer1.write("LevelID:1"+"\n");
+			writer1.write("LevelAuthor:???"+"\n");
+			writer1.write("LevelVersion:???"+"\n");
+			writer1.write("Player.position.x:32"+"\n");
+			writer1.write("Player.position.y:32"+"\n");
+			writer1.write("Player.position.cellX:3"+"\n");
+			writer1.write("Player.position.cellY:1"+"\n");
+			writer1.write("Player.health:"+Game.player.getHealth()+"\n");
+			writer1.write("Player.maxHealth:"+Game.player.getMaxHealth()+"\n");
+			writer1.write("Player.ammo:"+Game.player.getAmmo()+"\n");
+			writer1.write("Player.maxAmmo:"+Game.player.getMaxAmmo()+"\n");
+			writer1.write("Player.magic:"+Game.player.getMagicCount()+"\n");
+			writer1.write("Player.maxMagic:"+Game.player.getMaxMagicCount()+"\n");
+			writer1.write("Player.money:"+Game.player.getMoney()+"\n");
+			writer1.write("Player.rubies:"+Game.player.getRubyCount()+"\n");
+			writer1.write("Flame.cellX:0"+"\n");
+			writer1.write("Flame.cellY:0"+"\n");
+			File s1 = new File("assets/saves/"+profile+"_"+lvlName+"_blocks.dat");
+			File s2 = new File("assets/saves/"+profile+"_"+lvlName+"_entities.dat");
+			if(!s1.exists()) {
+				s1.createNewFile();
+			}
+			if(!s2.exists()) {
+				s2.createNewFile();
+			}
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+		finally {
+			if(writer1 != null) {
+				try {
+					writer1.close();
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	public void saveGame(String profile) {
 		BufferedWriter writer1 = null;
 		BufferedWriter writer2 = null;
 		try {
 			writer1 = new BufferedWriter(new FileWriter("assets/saves/"+profile+"_info.dat"));
+			writer1.write("Level:DANGEON"+"\n");
 			writer1.write("LevelID:1"+"\n");
+			writer1.write("LevelAuthor:???"+"\n");
+			writer1.write("LevelVersion:???"+"\n");
+			writer1.write("Level.isExtra:false"+"\n");
 			writer1.write("Player.position.x:32"+"\n");
 			writer1.write("Player.position.y:32"+"\n");
-			writer1.write("Player.position.cellX:20"+"\n");
-			writer1.write("Player.position.cellY:4"+"\n");
+			writer1.write("Player.position.cellX:3"+"\n");
+			writer1.write("Player.position.cellY:1"+"\n");
 			writer1.write("Player.health:"+Game.player.getHealth()+"\n");
 			writer1.write("Player.maxHealth:"+Game.player.getMaxHealth()+"\n");
+			writer1.write("Player.ammo:"+Game.player.getAmmo()+"\n");
+			writer1.write("Player.maxAmmo:"+Game.player.getMaxAmmo()+"\n");
 			writer1.write("Player.magic:"+Game.player.getMagicCount()+"\n");
 			writer1.write("Player.maxMagic:"+Game.player.getMaxMagicCount()+"\n");
 			writer1.write("Player.money:"+Game.player.getMoney()+"\n");
@@ -256,10 +376,11 @@ public class MouseInputManager implements MouseListener {
 	public int loadGame() {
 		BufferedReader reader1 = null;
 		BufferedReader reader2 = null;
-		int levelID, pcX, pcY, health, magic, maxH, maxM, flameX, flameY, money, ruby;
+		int levelID, pcX, pcY, health, magic, maxH, maxM, flameX, flameY, money, ruby, ammo, maxA;
 		float px, py;
-		String lvlID, psx, psy, pscx, pscy, psH, psM, psMH, psMM, fX, fY, psmoney, psruby;
-		String pName, line;
+		boolean extra;
+		String lvlID, psA, psMA, psx, psy, pscx, pscy, psH, psM, psMH, psMM, fX, fY, psmoney, psruby;
+		String pName, line, lvlName, lvlAuthor, lvlVer, lvlExtra;
 		ArrayList<String> lines = new ArrayList<String>();
 		int count = 0, i = 0;
 		try {
@@ -267,20 +388,26 @@ public class MouseInputManager implements MouseListener {
 			while((line = reader1.readLine()) != null) {
 				lines.add(line);
 			}
-			lvlID = lines.get(0);
+			lvlName = lines.get(0).split(":")[1];
+			lvlID = lines.get(1);
+			lvlAuthor = lines.get(2).split(":")[1];
+			lvlVer = lines.get(3).split(":")[1];
+			lvlExtra = lines.get(4);
 			//System.err.println(""+lvlID);
-			psx = lines.get(1);
-			psy = lines.get(2);
-			pscx = lines.get(3);
-			pscy = lines.get(4);
-			psH = lines.get(5);
-			psMH = lines.get(6);
-			psM = lines.get(7);
-			psMM = lines.get(8);
-			psmoney = lines.get(9);
-			psruby = lines.get(10);
-			fX = lines.get(11);
-			fY = lines.get(12);
+			psx = lines.get(5);
+			psy = lines.get(6);
+			pscx = lines.get(7);
+			pscy = lines.get(8);
+			psH = lines.get(9);
+			psMH = lines.get(10);
+			psA = lines.get(11);
+			psMA = lines.get(12);
+			psM = lines.get(13);
+			psMM = lines.get(14);
+			psmoney = lines.get(15);
+			psruby = lines.get(16);
+			fX = lines.get(17);
+			fY = lines.get(18);
 			levelID = Integer.parseInt(lvlID.split(":")[1]);
 			px = Float.parseFloat(psx.split(":")[1]);
 			py = Float.parseFloat(psy.split(":")[1]);
@@ -294,20 +421,149 @@ public class MouseInputManager implements MouseListener {
 			ruby = Integer.parseInt(psruby.split(":")[1]);
 			flameX = Integer.parseInt(fX.split(":")[1]);
 			flameY = Integer.parseInt(fY.split(":")[1]);
+			ammo = Integer.parseInt(psA.split(":")[1]);
+			maxA = Integer.parseInt(psMA.split(":")[1]);
+			extra = Boolean.parseBoolean(lvlExtra.split(":")[1]);
 			
 			Game.player.setHealth(health);
 			Game.player.setMaxHealth(maxH);
+			Game.player.setAmmo(ammo);
+			Game.player.setMaxAmmo(maxA);
 			Game.player.setMagicCount(magic);
 			Game.player.setMaxMagic(maxM);
 			Game.player.setMoney(money);
 			Game.player.setRubyCount(ruby);
-
-			LevelManager.setLevelByID(levelID);
+			
+			if(extra) {
+				Level lvl = new Level();
+				lvl.isExtra = extra;
+				lvl.create(lvlName+".map");
+				LevelManager.setLevel(lvl);
+			} else {
+				Level lvl = new Level();
+				lvl.isExtra = extra;
+				try {
+					lvl.create("level"+levelID+".map");
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+				
+				LevelManager.setLevel(lvl);
+			}
+			
+			//LevelManager.setLevelByID(levelID);
 			for(Flame f: LevelManager.currentLevel.flames) {
 				if(f.getCell().x == flameX && f.getCell().y == flameY) {
 					f.setActive(true);
 				}
 			}
+			Game.player.setPosition(pcX, pcY);
+//			reader2 = new BufferedReader(new FileReader("assets/saves/"+Game.profileName+"_blocks.dat"));
+//			for(Block b : LevelManager.currentLevel.blocks) {
+//				b = reader2.readLine();
+//			}
+//			if(reader2 != null) {
+//				reader2.close();
+//			}
+//			reader2 = new BufferedWriter(new FileWriter("assets/saves/"+Game.profileName+"_entities.dat"));
+//			for(Entity e: LevelManager.currentLevel.entities) {
+//				reader2.write(""+e);
+//				reader2.newLine();
+//			}
+//			if(reader2 != null) {
+//				reader2.close();
+//			}
+			return 0;
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+			return -1;
+		}
+		finally {
+			if(reader1 != null) {
+				try {
+					reader1.close();
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+//			if(reader2 != null) {
+//				try {
+//					reader2.close();
+//				}
+//				catch(IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+		}
+	}
+	
+	public int loadExtraGame(String levelName) {
+		BufferedReader reader1 = null;
+		BufferedReader reader2 = null;
+		int levelID, pcX, pcY, health, magic, maxH, maxM, flameX, flameY, money, ruby, ammo, maxA;
+		float px, py;
+		boolean extra;
+		String lvlID, psx, psy, pscx, pscy, psH, psM, psMH, psMM, fX, fY, psmoney, psruby, psA, psMA;
+		String pName, line, lvlName, lvlAuthor, lvlVer, lvlExtra;
+		ArrayList<String> lines = new ArrayList<String>();
+		int count = 0, i = 0;
+		try {
+			reader1 = new BufferedReader(new FileReader("assets/saves/"+Options.profileName+"_"+levelName+"_info.dat"));
+			while((line = reader1.readLine()) != null) {
+				lines.add(line);
+			}
+			lvlName = lines.get(0).split(":")[1];
+			lvlID = lines.get(1);
+			lvlAuthor = lines.get(2).split(":")[1];
+			lvlVer = lines.get(3).split(":")[1];
+			//System.err.println(""+lvlID);
+			psx = lines.get(4);
+			psy = lines.get(5);
+			pscx = lines.get(6);
+			pscy = lines.get(7);
+			psH = lines.get(8);
+			psMH = lines.get(9);
+			psA = lines.get(10);
+			psMA = lines.get(11);
+			psM = lines.get(12);
+			psMM = lines.get(13);
+			psmoney = lines.get(14);
+			psruby = lines.get(15);
+			fX = lines.get(16);
+			fY = lines.get(17);
+			levelID = Integer.parseInt(lvlID.split(":")[1]);
+			px = Float.parseFloat(psx.split(":")[1]);
+			py = Float.parseFloat(psy.split(":")[1]);
+			pcX = Integer.parseInt(pscx.split(":")[1]);
+			pcY = Integer.parseInt(pscy.split(":")[1]);
+			health = Integer.parseInt(psH.split(":")[1]);
+			maxH = Integer.parseInt(psMH.split(":")[1]);
+			magic = Integer.parseInt(psM.split(":")[1]);
+			maxM = Integer.parseInt(psMM.split(":")[1]);
+			money = Integer.parseInt(psmoney.split(":")[1]);
+			ruby = Integer.parseInt(psruby.split(":")[1]);
+			flameX = Integer.parseInt(fX.split(":")[1]);
+			flameY = Integer.parseInt(fY.split(":")[1]);
+			ammo = Integer.parseInt(psA.split(":")[1]);
+			maxA = Integer.parseInt(psMA.split(":")[1]);
+			
+			Game.player.setHealth(health);
+			Game.player.setMaxHealth(maxH);
+			Game.player.setAmmo(ammo);
+			Game.player.setMaxAmmo(maxA);
+			Game.player.setMagicCount(magic);
+			Game.player.setMaxMagic(maxM);
+			Game.player.setMoney(money);
+			Game.player.setRubyCount(ruby);
+			
+			//LevelManager.setLevelByID(levelID);
+//			for(Flame f: LevelManager.currentLevel.flames) {
+//				if(f.getCell().x == flameX && f.getCell().y == flameY) {
+//					f.setActive(true);
+//				}
+//			}
 			Game.player.setPosition(pcX, pcY);
 //			reader2 = new BufferedReader(new FileReader("assets/saves/"+Game.profileName+"_blocks.dat"));
 //			for(Block b : LevelManager.currentLevel.blocks) {
@@ -364,13 +620,53 @@ public class MouseInputManager implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
+			if (Game.player.inventoryShow) {
+				/*
+				 * Armor cells must be described too.
+				 * Don't forget!
+				 */
+				for(UISlot c : Game.player.inventory.cells) {
+					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
+						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
+							c.isDragging = true;
+							
+							
+						}
+					}
+				}
+			}
+		}
 
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
+			if (Game.player.inventoryShow) {
+				/*
+				 * Armor cells must be described too.
+				 * Don't forget!
+				 */
+				for(UISlot c : Game.player.inventory.cells) {
+					if(c.isDragging) {
+						//Debug.log("!!!");
+//						for(UISlot c2 : Game.player.inventory.cells) {
+//							if(e.getX() >= c2.getX() && e.getX() <= c2.getX()+c2.getWidth()) {
+//								if(e.getY() >= c2.getY() && e.getY() <= c2.getY()+c2.getHeight()) {
+//									Item it = c2.getItem();
+//									c.putItem(null);
+//									c.isDragging = false;
+//									c2.isDragging = true;
+//									c2.putItem(c.getItem());
+//								}
+//							}
+//						}
+						c.isDragging = false;
+					}
+				}
+			}
+		}
 
 	}
 

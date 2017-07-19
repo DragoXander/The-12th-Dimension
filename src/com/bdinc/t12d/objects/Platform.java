@@ -1,10 +1,11 @@
 package com.bdinc.t12d.objects;
 
 import java.awt.Image;
+import java.io.Serializable;
 
 import com.bdinc.t12d.maths.Vector2;
 
-public class Platform extends Block {
+public class Platform extends Block implements Serializable{
 	
 	protected float speed = 0.5f;
 	
@@ -32,6 +33,18 @@ public class Platform extends Block {
 	
 	public void setDirection(int direction) {
 		this.direction = direction;
+	}
+	
+	public int getPathCount() {
+		return count;
+	}
+	
+	public float getSpeed() {
+		return speed;
+	}
+	
+	public int getDirection() {
+		return direction;
 	}
 	
 	public void move() {}

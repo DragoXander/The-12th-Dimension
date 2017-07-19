@@ -1,4 +1,5 @@
-MusicVolume=0
-AmbientVolume=0
+MusicVolume=0.0
+AmbientVolume=0.0
 CanvasBufferStrategy.BufferCount=@autoCountMode
-CurrentProfile=Unknown Player (???)
+CurrentProfile=Player
+CurrentLanguage=ru_RU.lang

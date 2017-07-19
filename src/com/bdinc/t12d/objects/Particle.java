@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import com.bdinc.t12d.level.LevelManager;
+import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Vector2;
 import com.bdinc.t12d.utils.IntVector2;
@@ -31,6 +32,7 @@ public class Particle {
 	private float speed = 0.5f;
 	
 	public boolean active = false;
+	public boolean hit = false;
 	
 	public Particle(Image sprite) {
 		this.sprite = sprite;
@@ -70,6 +72,31 @@ public class Particle {
 	
 	public void decSpeed(float value) {
 		this.speed -= value;
+	}
+	
+	public void move() {
+		if(this.cellX > target.getCell().x) {
+			if(this.x <= 0) {
+				this.active = false;
+				this.hit = true;
+			}
+			if(this.cellX != target.getCell().x) {
+				this.x -= speed;
+				this.setCell(map.checkCell(x, y));
+			}
+		} else if (this.cellX < target.getCell().x) {
+			if(this.x >= Game.WIDTH) {
+				this.active = false;
+				this.hit = true;
+			}
+			if(this.cellX != target.getCell().x) {
+				this.x += speed;
+				this.setCell(map.checkCell(x, y));
+			}
+		} else {
+			this.hit = true;
+			target.decreaseHealth(10);
+		}
 	}
 	
 	public void moveTo(int direction) {

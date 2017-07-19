@@ -8,11 +8,13 @@ import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.objects.Particle;
+import com.bdinc.t12d.settings.ResourcesManager;
+import com.bdinc.t12d.utils.Debug;
 
 public class Physics {
 	
 	private static Map map = new Map();
-	private static float chekedCellX, chekedCellY;
+	private static float checkedCellX, checkedCellY;
 	
 	private static ArrayList<Entity> entities;
 	private static ArrayList<Block> blocks;
@@ -23,16 +25,16 @@ public class Physics {
 	
 	public static boolean collidesRight(float px, float py)
 	{
-		chekedCellX = map.checkCell(px, py).x;
-		chekedCellY = map.checkCell(px, py).y;
+		checkedCellX = Game.player.getCell().x;
+		checkedCellY = Game.player.getCell().y;
 		blocks = LevelManager.currentLevel.blocks;
 		for (Block b : blocks)
 		{
-			if(chekedCellX+1 == b.getCell().x && !b.isTrigger) {
-				if(((py+32 >= b.posY() && py+32 <= b.posY()+32) || (py <= b.posY()+32 && py >= b.posY())) && !b.isTrigger) { //chekedCellY == b.getCell().y
-					if(!collidesBottom(px, py)) {
+			if(checkedCellX+1 == b.getCell().x && !b.isTrigger) {
+				if(((py+32 > b.posY()+1 && py+32 < b.posY()+32) || (py < b.posY()+32 && py > b.posY()-1)) && !b.isTrigger) { //((py+32 >= b.posY() && py+32 <= b.posY()+32) || (py <= b.posY()+32 && py >= b.posY()))
+					if(!collidesBottom(px, py) && checkedCellX+1 == b.getCell().x) {
 						return true;
-					} else if(collidesBottom(px, py) && chekedCellY == b.getCell().y && !b.isTrigger){
+					} else if(collidesBottom(px, py) && checkedCellY == b.getCell().y && !b.isTrigger){
 						return true;
 					}
 				}
@@ -53,13 +55,13 @@ public class Physics {
 	
 	public static boolean collidesLeft(float px, float py)
 	{
-		chekedCellX = map.checkCell(px, py).x;
-		chekedCellY = map.checkCell(px, py).y;
+		checkedCellX = Game.player.getCell().x;
+		checkedCellY = Game.player.getCell().y;
 		blocks = LevelManager.currentLevel.blocks;
 		for (Block b : blocks)
 		{
-			if(chekedCellX == b.getCell().x && !b.isTrigger) {
-				if(chekedCellY == b.getCell().y) {
+			if((px <= b.posX()+32 && px >= b.posX())&& !b.isTrigger) { //checkedCellX-1 == b.getCell().x OR (px <= b.posX()+32 && px >= b.posX())
+				if(((py+32 > b.posY()+1 && py+32 < b.posY()+32) || (py < b.posY()+32 && py > b.posY()-1))&& !b.isTrigger) { //chekedCellY == b.getCell().y
 					return true;
 				}
 			}
@@ -77,12 +79,12 @@ public class Physics {
 	}
 	public static boolean collidesBottom(float px, float py)
 	{
-		chekedCellY = map.checkCell(px, py).y;
-		chekedCellX = map.checkCell(px, py).x;
+		checkedCellY = Game.player.getCell().y;
+		checkedCellX = Game.player.getCell().x;
 		blocks = LevelManager.currentLevel.blocks;
 		for (Block b : blocks)
 		{
-			if(chekedCellY+1 == b.getCell().y && !b.isTrigger) {
+			if((py+32 > b.posY() && py+32 < b.posY()+32) && !b.isTrigger) {
 				if(collidesRightForGravity(b, px, py) || collidesLeftForGravity(b, px, py)) {
 					return true;
 				}
@@ -90,13 +92,27 @@ public class Physics {
 		}
 		return false;
 	}
+	
+	public static boolean collidesBottomWith(Block b, float px, float py)
+	{
+		checkedCellY = Game.player.getCell().y;
+		checkedCellX = Game.player.getCell().x;
+		//blocks = LevelManager.currentLevel.blocks;
+		if((py+32 > b.posY() && py+32 < b.posY()+32) && !b.isTrigger) {
+			if(collidesRightForGravity(b, px, py) || collidesLeftForGravity(b, px, py)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public static boolean collidesEntity(float px, float py) {
-		chekedCellX = Game.player.getCell().x;
-		chekedCellY = Game.player.getCell().y;
+		checkedCellX = Game.player.getCell().x;
+		checkedCellY = Game.player.getCell().y;
 		entities = LevelManager.currentLevel.entities;
 		for(Entity e : entities) {
-			if(e.getCell().x <= chekedCellX+1 && e.getCell().x >= chekedCellX) {
-				if(e.getCell().y == chekedCellY) {
+			if(e.getCell().x <= checkedCellX+1 && e.getCell().x >= checkedCellX) {
+				if(e.getCell().y == checkedCellY) {
 					return true;
 				}
 			}
@@ -105,11 +121,11 @@ public class Physics {
 	}
 	public static boolean collidesTop(float px, float py)
 	{
-		chekedCellY = map.checkCell(px, py).y;
+		checkedCellY = map.checkCell(px, py).y;
 		blocks = LevelManager.currentLevel.blocks;
 		for (Block b : blocks)
 		{
-			if(chekedCellY == b.getCell().y) {
+			if((py < b.posY()+32 && py > b.posY()-1) && !b.isTrigger) {
 				if(collidesRightForGravity(b, px, py) || collidesLeftForGravity(b, px, py)) {
 					return true;
 				}

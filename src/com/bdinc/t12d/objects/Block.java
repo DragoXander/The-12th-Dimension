@@ -2,6 +2,7 @@ package com.bdinc.t12d.objects;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.Serializable;
 
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
@@ -10,14 +11,14 @@ import com.bdinc.t12d.maths.Vector2;
 import com.bdinc.t12d.types.ISolidObject;
 import com.bdinc.t12d.utils.IntVector2;
 
-public class Block implements ISolidObject {
+public class Block implements ISolidObject, Serializable {
 	
 	protected Image sprite;
 	protected float x, y;
 	protected int cellX, cellY;
 	protected Map map = new Map();
 	private Game game = new Game();
-	public boolean isTrigger;
+	public boolean isTrigger, isInteractive;
 	
 	public String id = "block";
 	

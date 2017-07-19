@@ -14,6 +14,7 @@ import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UICell;
+import com.bdinc.t12d.utils.Debug;
 
 public class ProfilesListDialog {
 	
@@ -49,11 +50,13 @@ public class ProfilesListDialog {
 	
 	public static Color btnBackColor, btnNewColor;
 	
-	public static int levelID = 0, pcX = 0, pcY = 0, health = 0, magic = 0, money = 0, ruby = 0;
+	public static int levelID = 0, pcX = 0, pcY = 0, health = 0, magic = 0, ammo = 0, money = 0, ruby = 0;
 	
 	public static ArrayList<UICell> activeCells = new ArrayList<UICell>();
 	
 	private static Polygon exitArrow;
+	
+	public static String lvlName, lvlAuthor, lvlVer, lvlExtra;
 	
 	private static boolean repaintRequest;
 	
@@ -105,24 +108,27 @@ public class ProfilesListDialog {
 			}
 		}
 		
-		
-		
 		g.setColor(Color.white);
 		g.drawRect(btnBackX, btnBackY, btnBackWidth, btnBackHeight);
 		g.drawRect(btnNewX, btnNewY, btnNewWidth, btnNewHeight);
 		g.drawRect(btnDelX, btnDelY, btnDelWidth, btnDelHeight);
 //		g.drawRect(btnSelX, btnSelY, btnSelWidth, btnSelHeight);
 		g.setFont(ResourcesManager.defaultFont);
-		g.drawString("Back", 65, 55);
+		g.drawString(ResourcesManager.m_back, 65, 55);
 		g.drawString("Info: "+Options.profileName, 540, 120);
 		g.setFont(ResourcesManager.defaultFont16);
-		g.drawString("Level: "+levelID, 540, 145);
-		g.drawString("Player X: "+pcX, 540, 170);
-		g.drawString("Player Y: "+pcY, 540, 195);
-		g.drawString("Player Health: "+health, 540, 220);
-		g.drawString("Player Magic: "+magic, 540, 245);
-		g.drawString("Money: "+money, 540, 270);
-		g.drawString("Ruby count: "+ruby, 540, 295);
+		g.drawString(ResourcesManager.m_level+lvlName, 540, 145);
+		g.drawString(ResourcesManager.m_levelID+levelID, 540, 170);
+		g.drawString(ResourcesManager.m_levelAuthor+lvlAuthor, 540, 195);
+		g.drawString(ResourcesManager.m_levelVer+lvlVer, 540, 220);
+		g.drawString(ResourcesManager.m_levelExtra+lvlExtra, 540, 245);
+		g.drawString("Player X: "+pcX, 540, 270);
+		g.drawString("Player Y: "+pcY, 540, 295);
+		g.drawString(ResourcesManager.m_playerHealth+health, 540, 320);
+		g.drawString(ResourcesManager.m_playerAmmo+ammo, 540, 345);
+		g.drawString(ResourcesManager.m_playerMagic+magic, 540, 370);
+		g.drawString(ResourcesManager.m_profileMoney+money, 540, 395);
+		g.drawString(ResourcesManager.m_profileRuby+ruby, 540, 420);
 		
 		g.setColor(btnBackColor);
 		g.fillRect(btnBackX+1, btnBackY+1, btnBackWidth-1, btnBackHeight-1);
@@ -154,8 +160,13 @@ public class ProfilesListDialog {
 	
 	public static void resetInfo() {
 		levelID = 0;
+		lvlName = "???";
+		lvlAuthor = "???";
+		lvlVer = "???";
+		lvlExtra = "???";
 		pcX = 0;
 		pcY = 0;
+		ammo = 0;
 		health = 0;
 		magic = 0;
 		money = 0;
@@ -165,7 +176,7 @@ public class ProfilesListDialog {
 	
 	public static void viewinfo() {
 		BufferedReader reader1 = null;
-		String lvlID, pscx, pscy, psH, psM, psmoney, psruby;
+		String lvlID, pscx, pscy, psH, psM, psmoney, psruby, psA;
 		String line;
 		ArrayList<String> lines = new ArrayList<String>();
 		try {
@@ -174,18 +185,21 @@ public class ProfilesListDialog {
 			} else {
 				reader1 = new BufferedReader(new FileReader("assets/saves/"+Options.profileName+"_info.dat"));
 			}
-			
-			
 			while((line = reader1.readLine()) != null) {
 				lines.add(line);
 			}
-			lvlID = lines.get(0);
-			pscx = lines.get(3);
-			pscy = lines.get(4);
-			psH = lines.get(5);
-			psM = lines.get(7);
-			psmoney = lines.get(9);
-			psruby = lines.get(10);
+			lvlName = lines.get(0).split(":")[1];
+			lvlID = lines.get(1);
+			lvlAuthor = lines.get(2).split(":")[1];
+			lvlVer = lines.get(3).split(":")[1];
+			lvlExtra = lines.get(4).split(":")[1];
+			pscx = lines.get(7);
+			pscy = lines.get(8);
+			psH = lines.get(9);
+			psA = lines.get(11);
+			psM = lines.get(13);
+			psmoney = lines.get(15);
+			psruby = lines.get(16);
 			levelID = Integer.parseInt(lvlID.split(":")[1]);
 			pcX = Integer.parseInt(pscx.split(":")[1]);
 			pcY = Integer.parseInt(pscy.split(":")[1]);
@@ -193,6 +207,7 @@ public class ProfilesListDialog {
 			magic = Integer.parseInt(psM.split(":")[1]);
 			money = Integer.parseInt(psmoney.split(":")[1]);
 			ruby = Integer.parseInt(psruby.split(":")[1]);
+			ammo = Integer.parseInt(psA.split(":")[1]);
 		}
 		catch(IOException e) {
 			e.printStackTrace();
