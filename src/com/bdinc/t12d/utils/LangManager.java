@@ -38,6 +38,23 @@ public class LangManager {
 	public static final String MSG_MECH_BUTTONARGSERR = "Message.mech.button.incorrectArgs";
 	
 	public static String currentLang = "";
+
+	public enum  Lang {
+		ru_RU("ru_RU.lang"),
+		en_US("en_US.lang");
+		String value;
+		Lang(String value) {
+			this.value = value;
+		}
+		String getValue() {
+			return this.value;
+		}
+
+	}
+
+	public static Lang getCurrentLanguage() {
+		return Lang.valueOf(currentLang);
+	}
 	
 	public static void setLanguage(String file) {
 		currentLang = file;

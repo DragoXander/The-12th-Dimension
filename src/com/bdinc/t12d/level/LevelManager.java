@@ -50,8 +50,7 @@ public class LevelManager {
 	
 	public static Level currentLevel;
 	public static int levelNumber;
-	
-	private static ResourcesManager resources = new ResourcesManager();
+
 	private static Level lvl;
 	
 	public static void setLevelByID(int ID) {
@@ -116,125 +115,6 @@ public class LevelManager {
 	public static Level getCurrentLevel()
 	{
 		return currentLevel;
-	}
-	
-	public static Platform getPlatformByName(String name) {
-		Platform p = null;
-		switch(name) {
-			case VPLATFORM_DANGEON:
-				p = new VerticalPlatform(ResourcesManager.vplatformDangeon);
-				return p;
-			case HPLATFORM_DANGEON:
-				p = new HorizontalPlatform(ResourcesManager.hplatformDangeon);
-				return p;
-			default:
-				return null;
-		}
-	}
-	
-	public static Entity getEntityByName(String name)
-	{
-		switch(name) {
-			case FIRE_MAN:
-				Entity ent = new Entity(resources.monstFire);
-				ent.isEnemy = true;
-				ent.setHealth(15);
-				ent.setMagicCount("unlimited");
-				return ent;
-			default:
-				return null;
-		}
-	}
-	
-	public static Item getItemByName(String name) {
-		switch(name) {
-			case MAKAROV_GUN:
-				return new MakarovGun();
-			default:
-				return null;
-		}
-	}
-	
-	public static SlotContainer getContainer(String name) {
-		SlotContainer c = null;
-		switch(name) {
-			case CONT_CHEST:
-				c = new Chest(ResourcesManager.chest);
-				return c;
-			case CONT_VASE:
-				c = new Vase(ResourcesManager.vase);
-				return c;
-			default:
-				return null;
-		}
-	}
-	
-	public static Block getObjectByName(String name)
-	{
-		Block b = null;
-		switch(name) {
-			case BRICK_1:
-				b = new Block(ResourcesManager.brick1);
-				return b;
-			case BRICK_2:
-				b = new Block(ResourcesManager.brick2);
-				return b;
-			case BRICK_3:
-				b = new Block(ResourcesManager.brick3);
-				return b;
-			case BRICK_4:
-				b = new Block(ResourcesManager.brick4);
-				return b;
-			case BRICK_5:
-				b = new Block(ResourcesManager.brick5);
-				return b;
-			case BRICK_6:
-				b = new Block(ResourcesManager.brick6);
-				return b;
-			case BRICK_7:
-				b = new Block(ResourcesManager.brick7);
-				return b;
-			case WALL_1:
-				b = new Block(ResourcesManager.wall1);
-				b.isTrigger = true;
-				return b;
-			case CHEST:
-				b = new Chest(ResourcesManager.chest);
-				b.isInteractive = true;
-				return b;
-//			case BUTTON:
-//				b = new Button(ResourcesManager.button, null, "null");
-//				b.isInteractive = true;
-//				return b;
-			default:
-				return null;
-		}
-	}
-	
-	public static Button getButton(String name) {
-		Button b = null;
-		switch(name) {
-			case BUTTON_DEFAULT:
-				b = new Button(ResourcesManager.button, null, "null");
-				return b;
-			default:
-				return null;
-		}
-	}
-	
-	public static Flame getFlame(String name) {
-		Flame f = null;
-		switch(name) {
-			case FLAME_OFF:
-				f = new Flame(ResourcesManager.flameOff);
-				return f;
-			case FLAME:
-				f = new Flame(ResourcesManager.flame);
-				f.setActive(true);
-				return f;
-			default:
-				return null;
-		}
 	}
 	
 }

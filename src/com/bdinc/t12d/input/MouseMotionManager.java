@@ -8,10 +8,7 @@ import java.awt.event.MouseMotionListener;
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.objects.SlotContainer;
-import com.bdinc.t12d.scenes.DLCListDialog;
-import com.bdinc.t12d.scenes.LangListDialog;
-import com.bdinc.t12d.scenes.OptionsScreen;
-import com.bdinc.t12d.scenes.ProfilesListDialog;
+import com.bdinc.t12d.scenes.*;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UICell;
 import com.bdinc.t12d.ui.UIComponent;
@@ -69,109 +66,109 @@ public class MouseMotionManager extends MouseAdapter implements MouseMotionListe
 		}
 		
 		if(LevelManager.levelNumber == 0) {
-			if(e.getX() >= Game.m_playBtnX && e.getX() <= Game.m_playBtnX+Game.m_playBtn.getWidth(null)) {
-				if(e.getY() >= Game.m_playBtnY && e.getY() <= Game.m_playBtnY+Game.m_playBtn.getHeight(null)) {
-					Game.m_playBtn = ResourcesManager.playBtnHover;
+			if(e.getX() >= MainMenu.playBtn.x && e.getX() <= MainMenu.playBtn.x+MainMenu.playBtn.width) {
+				if(e.getY() >= MainMenu.playBtn.y && e.getY() <= MainMenu.playBtn.y+MainMenu.playBtn.height) {
+					MainMenu.playBtn.setHover(true);
 				}
 				else {
-					Game.m_playBtn = ResourcesManager.playBtn;
+					MainMenu.playBtn.reset();
 				}
 			}
 			else {
-				Game.m_playBtn = ResourcesManager.playBtn;
+				MainMenu.playBtn.reset();
 			}
 			//ShopButton
-			if(e.getX() >= Game.m_shopBtnX && e.getX() <= Game.m_shopBtnX+Game.m_shopBtn.getWidth(null)) {
-				if(e.getY() >= Game.m_shopBtnY && e.getY() <= Game.m_shopBtnY+Game.m_shopBtn.getHeight(null)) {
-					Game.m_shopBtn = ResourcesManager.shopBtnHover;
+			if(e.getX() >= MainMenu.shopBtn.x && e.getX() <= MainMenu.shopBtn.x+MainMenu.shopBtn.width) {
+				if(e.getY() >= MainMenu.shopBtn.y && e.getY() <= MainMenu.shopBtn.y+MainMenu.shopBtn.height) {
+					MainMenu.shopBtn.setHover(true);
 				}
 				else {
-					Game.m_shopBtn = ResourcesManager.shopBtn;
+					MainMenu.shopBtn.reset();
 				}
 			}
 			else {
-				Game.m_shopBtn = ResourcesManager.shopBtn;
+				MainMenu.shopBtn.reset();
 			}
 			//OptionsButton
-			if(e.getX() >= Game.m_optBtnX && e.getX() <= Game.m_optBtnX+60) {
-				if(e.getY() >= Game.m_optBtnY && e.getY() <= Game.m_optBtnY+60) {
-					Game.m_optBtn = ResourcesManager.optionsBtnHover;
+			if(e.getX() >= MainMenu.optBtn.x && e.getX() <= MainMenu.optBtn.x+MainMenu.optBtn.width) {
+				if(e.getY() >= MainMenu.optBtn.y && e.getY() <= MainMenu.optBtn.y+MainMenu.optBtn.height) {
+					MainMenu.optBtn.setHover(true);
 				}
 				else {
-					Game.m_optBtn = ResourcesManager.optionsBtn;
+					MainMenu.optBtn.reset();
 				}
 			}
 			else {
-				Game.m_optBtn = ResourcesManager.optionsBtn;
+				MainMenu.optBtn.reset();
 			}
 			//ExitButton
-			if(e.getX() >= Game.m_exitBtnX && e.getX() <= Game.m_exitBtnX+Game.m_exitBtn.getWidth(null)) {
-				if(e.getY() >= Game.m_exitBtnY && e.getY() <= Game.m_exitBtnY+Game.m_exitBtn.getHeight(null)) {
-					Game.m_exitBtn = ResourcesManager.exitBtnHover;
+			if(e.getX() >= MainMenu.exitBtn.x && e.getX() <= MainMenu.exitBtn.x+MainMenu.exitBtn.width) {
+				if(e.getY() >= MainMenu.exitBtn.y && e.getY() <= MainMenu.exitBtn.y+MainMenu.exitBtn.height) {
+					MainMenu.exitBtn.setHover(true);
 				}
 				else {
-					Game.m_exitBtn = ResourcesManager.exitBtn;
+					MainMenu.exitBtn.reset();
 				}
 			}
 			else {
-				Game.m_exitBtn = ResourcesManager.exitBtn;
+				MainMenu.exitBtn.reset();
 			}
 			//Profile select button
-			if(e.getX() >= Game.m_profileBtnX && e.getX() <= Game.m_profileBtnX+Game.m_profileBtnWidth) {
-				if(e.getY() >= Game.m_profileBtnY && e.getY() <= Game.m_profileBtnY+Game.m_profileBtnHeight) {
-					Game.m_profileBtnColor = Color.ORANGE;
+			if(e.getX() >= MainMenu.profileBtn.x && e.getX() <= MainMenu.profileBtn.x+MainMenu.profileBtn.width) {
+				if(e.getY() >= MainMenu.profileBtn.y && e.getY() <= MainMenu.profileBtn.y+MainMenu.profileBtn.height) {
+					MainMenu.m_profileBtnColor = Color.ORANGE;
 				}
 				else {
-					Game.m_profileBtnColor = Color.CYAN;
+					MainMenu.m_profileBtnColor = Color.CYAN;
 				}
 			}
 			else {
-				Game.m_profileBtnColor = Color.CYAN;
+				MainMenu.m_profileBtnColor = Color.CYAN;
 			}
 			//ExtraBtn
-			if(e.getX() >= Game.m_extraBtnX && e.getX() <= Game.m_extraBtnX+Game.m_extraBtn.getWidth(null)) {
-				if(e.getY() >= Game.m_extraBtnY && e.getY() <= Game.m_extraBtnY+Game.m_extraBtn.getHeight(null)) {
-					Game.m_extraBtn = ResourcesManager.extraBtnHover;
+			if(e.getX() >= MainMenu.extraBtn.x && e.getX() <= MainMenu.extraBtn.x+MainMenu.extraBtn.width) {
+				if(e.getY() >= MainMenu.extraBtn.y && e.getY() <= MainMenu.extraBtn.y+MainMenu.extraBtn.height) {
+					MainMenu.extraBtn.setHover(true);
 				}
 				else {
-					Game.m_extraBtn = ResourcesManager.extraBtn;
+					MainMenu.extraBtn.reset();
 				}
 			}
 			else {
-				Game.m_extraBtn = ResourcesManager.extraBtn;
+				MainMenu.extraBtn.reset();
 			}
 			//StoryBtn
-			if(e.getX() >= Game.m_contBtnX && e.getX() <= Game.m_contBtnX+Game.m_storyBtn.getWidth(null)) {
-				if(e.getY() >= Game.m_storyBtnY && e.getY() <= Game.m_storyBtnY+Game.m_storyBtn.getHeight(null)) {
-					Game.m_storyBtn = ResourcesManager.storyBtnDisabled;
-					Game.tooltip = true;
-					Game.tooltipX = e.getX()+10;
-					Game.tooltipY = e.getY();
+			if(e.getX() >= MainMenu.storyBtn.x && e.getX() <= MainMenu.storyBtn.x+MainMenu.storyBtn.width) {
+				if(e.getY() >= MainMenu.storyBtn.y && e.getY() <= MainMenu.storyBtn.y+MainMenu.storyBtn.height) {
+					//MainMenu.m_storyBtn = ResourcesManager.storyBtnDisabled;
+					MainMenu.tooltip = true;
+					MainMenu.tooltipX = e.getX()+10;
+					MainMenu.tooltipY = e.getY();
 				}
 				else {
-					Game.m_storyBtn = ResourcesManager.storyBtnDisabled;
-					Game.tooltip = false;
-					Game.tooltipX = 0;
-					Game.tooltipY = 0;
+					//MainMenu.m_storyBtn = ResourcesManager.storyBtnDisabled;
+					MainMenu.tooltip = false;
+					MainMenu.tooltipX = 0;
+					MainMenu.tooltipY = 0;
 				}
 			}
 			else {
-				Game.m_storyBtn = ResourcesManager.storyBtnDisabled;
-				Game.tooltip = false;
-				Game.tooltipX = 0;
-				Game.tooltipY = 0;
+				//MainMenu.m_storyBtn = ResourcesManager.storyBtnDisabled;
+				MainMenu.tooltip = false;
+				MainMenu.tooltipX = 0;
+				MainMenu.tooltipY = 0;
 			}
 			//LangBtn
-			if(e.getX() >= Game.m_langBtnX && e.getX() <= Game.m_langBtnX+Game.m_langBtnWidth) {
-				if(e.getY() >= Game.m_langBtnY && e.getY() <= Game.m_langBtnY+Game.m_langBtnHeight) {
-					Game.m_langBtn = ResourcesManager.langBtnHover;
+			if(e.getX() >= MainMenu.langBtn.x && e.getX() <= MainMenu.langBtn.x+MainMenu.langBtn.width) {
+				if(e.getY() >= MainMenu.langBtn.y && e.getY() <= MainMenu.langBtn.y+MainMenu.langBtn.height) {
+					MainMenu.langBtn.setHover(true);
 				}
 				else {
-					Game.m_langBtn = ResourcesManager.langBtn;
+					MainMenu.langBtn.reset();
 				}
 			}
 			else {
-				Game.m_langBtn = ResourcesManager.langBtn;
+				MainMenu.langBtn.reset();
 			}
 		}
 		else if(LevelManager.levelNumber == -3)

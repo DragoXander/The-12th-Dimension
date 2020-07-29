@@ -29,10 +29,7 @@ import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.MakarovGun;
-import com.bdinc.t12d.scenes.DLCListDialog;
-import com.bdinc.t12d.scenes.LangListDialog;
-import com.bdinc.t12d.scenes.OptionsScreen;
-import com.bdinc.t12d.scenes.ProfilesListDialog;
+import com.bdinc.t12d.scenes.*;
 import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.Inventory;
@@ -61,7 +58,7 @@ public class Game extends Canvas implements Runnable {
 	public static final int WIDTH = 1120; //32 x35
 	public static final int HEIGHT = 704; //32 x22
 	
-	public static final String VERSION = "v1.0-build4.6";
+	public static final String VERSION = "v1.0-build5 (v0.0.1)";
 	
 	public static final boolean isDevelopmentBuild = true;
 	public static boolean paused;
@@ -171,15 +168,13 @@ public class Game extends Canvas implements Runnable {
 		player.setMaxMagic(30);
 		player.setName("Adam Robbins");
 		player.setPosition(5, 1);
+
 		//player.inventory.init();
 		ResourcesManager.loadConfiguration();
 		//ResourcesManager.initAudio();
 		display.init();
 		m_profileBtnColor = Color.CYAN;
-		ProfilesListDialog.init();
-		DLCListDialog.init();
-		LangListDialog.init();
-		OptionsScreen.init();
+		SceneManager.initScenes();
 		System.out.println("BufferStrategy created with buffer count: " + Options.bufferCount);
 		System.out.println("Music volume is: " + Options.musicVolume);
 		System.out.println("Ambient volume is: " + Options.ambientVolume);
@@ -347,7 +342,7 @@ public class Game extends Canvas implements Runnable {
 		});
 		gameWindow = new JFrame("The 12th Dimension");
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gameWindow.setIconImage(resources.gameIcon);
+		gameWindow.setIconImage(ResourcesManager.gameIcon);
 		gameWindow.setLayout(new BorderLayout());
 		gameWindow.setResizable(false);
 		gameWindow.setVisible(true);
@@ -402,13 +397,6 @@ public class Game extends Canvas implements Runnable {
 		}
 		try
 		{
-//			if(log) {
-//				g.setColor(Color.WHITE);
-//				g.setFont(ResourcesManager.defaultFont22);
-//				FontMetrics fm = g.getFontMetrics();
-//				g.drawString(logMsg, WIDTH/2-fm.stringWidth(logMsg), HEIGHT/2);
-//				
-//			}
 			if(LevelManager.levelNumber > 0) {
 				if(LevelManager.levelNumber == 1) {
 					g.setColor(Color.BLACK);
@@ -558,105 +546,7 @@ public class Game extends Canvas implements Runnable {
 				/*
 				 * #MainMenu level:
 				 */
-				g.drawImage(resources.logo, 10, 50, null);
-				
-//				m_playBtnX = this.getWidth()/2-m_playBtn.getWidth(null)/2;
-				m_playBtnX = 10;
-				m_playBtnY = (this.getHeight()>>1) - 10;
-				
-				m_contRectX = 10; //10
-				
-				m_contRectY = m_playBtnY+5;
-				m_contBtnX = m_contRectX;
-				m_storyBtnY = (this.getHeight()>>1) - 100;
-//				m_shopBtnX = this.getWidth()/2-m_shopBtn.getWidth(null)/2;
-				m_shopBtnX = 10;
-				m_shopBtnY = m_playBtnY+m_playBtn.getHeight(null)+5;
-//				m_optBtnX = this.getWidth()/2-m_optBtn.getWidth(null)/2;
-				
-//				m_extraBtnX = this.getWidth()/2-m_extraBtn.getWidth(null)/2;
-				m_extraBtnX = 10;
-				m_extraBtnY = m_shopBtnY+m_shopBtn.getHeight(null)+5;
-//				m_exitBtnX = this.getWidth()/2-m_exitBtn.getWidth(null)/2;
-				m_exitBtnX = 10;
-				m_exitBtnY = m_extraBtnY+m_extraBtn.getHeight(null)+5;
-				m_profileBtnX = Game.WIDTH-297;
-				m_profileBtnY = Game.HEIGHT-94;
-				m_profileBtnWidth = 290;
-				m_profileBtnHeight = 39;
-				m_langBtnX = m_exitBtnX+m_exitBtn.getWidth(null)+10;
-				m_langBtnY = m_exitBtnY;
-				m_langBtnWidth = 60;
-				m_langBtnHeight = 60;
-				m_optBtnX = m_langBtnX;
-				m_optBtnY = m_extraBtnY;
-				m_labelX = 10;
-				m_labelY = m_playBtnY-30;
-				g.drawImage(m_playBtn, m_playBtnX, m_playBtnY, null);
-				g.drawImage(m_shopBtn, m_shopBtnX, m_shopBtnY, null);
-				g.drawImage(m_optBtn, m_optBtnX, m_optBtnY, 60, 60, null);
-				g.drawImage(m_exitBtn, m_exitBtnX, m_exitBtnY, null);
-				g.drawImage(m_extraBtn, m_extraBtnX, m_extraBtnY, null);
-				g.drawImage(m_storyBtn, m_contBtnX, m_storyBtnY, null);
-				g.drawImage(m_langBtn, m_langBtnX, m_langBtnY, m_langBtnWidth, m_langBtnHeight, null);
-				
-				//�������:
-				g.setColor(Color.WHITE);
-				g.drawRect(Game.WIDTH-300, Game.HEIGHT-150, 295, 100); //������� ������� (���)
-				g.drawRect(Game.WIDTH-298, Game.HEIGHT-148, 51, 51); //������� ������� �������
-				g.drawImage(ResourcesManager.profile, Game.WIDTH-297, Game.HEIGHT-147, null);
-				g.drawRect(Game.WIDTH-246, Game.HEIGHT-148, 240, 26);
-				
-				//g.drawRect(m_contRectX, m_contRectY, 304, 230);
-				
-				g.setFont(ResourcesManager.defaultFont);
-				//g.drawString(ResourcesManager.m_moreContent, m_labelX, 500);
-				g.drawString(Options.profileName, Game.WIDTH-244, Game.HEIGHT-126);
-				g.setFont(ResourcesManager.defaultFont14);
-				//g.drawString(ResourcesManager.m_moreContentSub, m_labelX, 500);
-				g.drawString(ResourcesManager.m_profileMoney+player.getMoney(), Game.WIDTH-244, Game.HEIGHT-104);
-				g.drawRect(Game.WIDTH-298, Game.HEIGHT-95, 291, 40);
-				g.setColor(m_profileBtnColor);
-				g.fillRect(m_profileBtnX, m_profileBtnY, m_profileBtnWidth, m_profileBtnHeight);
-				g.setColor(Color.black);
-				String strSelectProfile = ResourcesManager.m_selectProfile;
-				g.drawString(strSelectProfile, m_profileBtnX+50, m_profileBtnY+25);
-				//����������
-				g.setColor(Color.white);
-				g.setFont(ResourcesManager.defaultFont);
-				g.drawString("The 12th Dimension", 5, getHeight()-40);
-				g.drawString(VERSION, 5, getHeight()-10);
-				g.setColor(Color.YELLOW);
-				g.drawString("The Fantasy is real!", 450, 70+resources.logo.getHeight(null));
-				if(isDevelopmentBuild) {
-					g.drawString("[Development Build]", 110, getHeight()-10);
-				}
-				g.setColor(Color.white);
-				g.drawString("Copyright (C) BDINC 2017", getWidth()-235, getHeight()-10);
-				
-				if(tooltip) {
-					g.setColor(Color.WHITE);
-					if(LangManager.currentLang.equals("ru_RU.lang")) {
-						g.drawRect(tooltipX, tooltipY, 440, 100);
-					} else {
-						g.drawRect(tooltipX, tooltipY, 340, 100);
-					}
-					g.setColor(ColorManager.getAlphaColor(Color.BLACK, 90));
-					if(LangManager.currentLang.equals("ru_RU.lang")) {
-						g.fillRect(tooltipX+1, tooltipY+1, 439, 99);
-					} else {
-						g.fillRect(tooltipX+1, tooltipY+1, 339, 99);
-					}
-					g.setColor(Color.YELLOW);
-					g.setFont(ResourcesManager.defaultFont16);
-					g.drawString(ResourcesManager.m_storyMode, tooltipX+3, tooltipY+20);
-					g.setColor(Color.WHITE);
-					g.setFont(ResourcesManager.defaultFont14);
-					g.drawString(ResourcesManager.m_storyModeDis1, tooltipX+3, tooltipY+35);
-					g.drawString(ResourcesManager.m_storyModeDis2, tooltipX+3, tooltipY+52);
-					g.setColor(ColorManager.VIOLET);
-					g.drawString(ResourcesManager.m_storyModeDis3, tooltipX+3, tooltipY+85);
-				}
+				MainMenu.render(g);
 				
 			}
 			

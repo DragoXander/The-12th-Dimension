@@ -23,6 +23,7 @@ import com.bdinc.t12d.objects.MakarovAmmo;
 import com.bdinc.t12d.objects.MakarovGun;
 import com.bdinc.t12d.objects.Platform;
 import com.bdinc.t12d.objects.SlotContainer;
+import com.bdinc.t12d.settings.ObjectManager;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UISlot;
 import com.bdinc.t12d.utils.ColorManager;
@@ -233,9 +234,9 @@ public class LevelReader {
 				door = false;
 			}
 			String[] vec = map.get(n);
-			Platform p = LevelManager.getPlatformByName(n);
-			Button btn = LevelManager.getButton(n);
-			SlotContainer cont = LevelManager.getContainer(n);
+			Platform p = ObjectManager.getPlatformByName(n);
+			Button btn = ObjectManager.getButton(n);
+			SlotContainer cont = ObjectManager.getContainer(n);
 			int slotW = 0, slotH = 0, slotNum = 0, ovW = 0, ovH = 0;
 			Color ovBg = null, ovBorder = null, slotBg = null, 
 					slotBorder = null, slotInfo = null, ttipBg = null, 
@@ -749,22 +750,22 @@ public class LevelReader {
 						{
 							if(entity)
 							{
-								Entity ent = LevelManager.getEntityByName(n);
+								Entity ent = ObjectManager.getEntityByName(n);
 								ent.setPosition(j, Integer.parseInt(v[1]));
 								entities.add(ent);
 							}
 							else if(flame) {
-								Flame f = LevelManager.getFlame(n);
+								Flame f = ObjectManager.getFlame(n);
 								f.setLocation(j, Integer.parseInt(v[1]));
 								flames.add(f);
 							} else if (item) {
-								Item it = LevelManager.getItemByName(n);
+								Item it = ObjectManager.getItemByName(n);
 								it.setLocation(j, Integer.parseInt(v[1]));
 								items.add(it);
 							}
 							else if(!entity && !flame && !platform && !door && !container && !button && !item)
 							{
-								Block b = LevelManager.getObjectByName(n);
+								Block b = ObjectManager.getObjectByName(n);
 								b.setLocation(j, Integer.parseInt(v[1]));
 								blocks.add(b);
 							}
@@ -778,22 +779,22 @@ public class LevelReader {
 						{
 							if(entity)
 							{
-								Entity ent = LevelManager.getEntityByName(n);
+								Entity ent = ObjectManager.getEntityByName(n);
 								ent.setPosition(Integer.parseInt(v[0]), j);
 								entities.add(ent);
 							}
 							else if(flame) {
-								Flame f = LevelManager.getFlame(n);
+								Flame f = ObjectManager.getFlame(n);
 								f.setLocation(Integer.parseInt(v[0]), j);
 								flames.add(f);
 							} else if (item) {
-								Item it = LevelManager.getItemByName(n);
+								Item it = ObjectManager.getItemByName(n);
 								it.setLocation(Integer.parseInt(v[0]), j);
 								items.add(it);
 							}
 							else if(!entity && !flame && !platform && !door && !container && !button && !item)
 							{
-								Block b = LevelManager.getObjectByName(n);
+								Block b = ObjectManager.getObjectByName(n);
 								b.setLocation(Integer.parseInt(v[0]), j);
 								blocks.add(b);
 							}
@@ -804,22 +805,22 @@ public class LevelReader {
 					{
 						if(entity)
 						{
-							Entity ent = LevelManager.getEntityByName(n);
+							Entity ent = ObjectManager.getEntityByName(n);
 							ent.setPosition(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							entities.add(ent);
 						}
 						else if(flame) {
-							Flame f = LevelManager.getFlame(n);
+							Flame f = ObjectManager.getFlame(n);
 							f.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							flames.add(f);
 						} else if (item) {
-							Item it = LevelManager.getItemByName(n);
+							Item it = ObjectManager.getItemByName(n);
 							it.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							items.add(it);
 						}
 						else if(!entity && !flame && !platform && !door && !container && !button && !item)
 						{
-							Block b = LevelManager.getObjectByName(n);
+							Block b = ObjectManager.getObjectByName(n);
 							b.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							blocks.add(b);
 								

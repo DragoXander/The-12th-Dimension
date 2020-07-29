@@ -1,5 +1,7 @@
 package com.bdinc.t12d.graphics;
 
+import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -15,6 +17,8 @@ import com.bdinc.t12d.objects.Item;
 import com.bdinc.t12d.objects.MakarovAmmo;
 import com.bdinc.t12d.objects.Particle;
 import com.bdinc.t12d.objects.Platform;
+import com.bdinc.t12d.scenes.SceneManager;
+import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.ui.UISlot;
 import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.IntVector2;
@@ -37,10 +41,25 @@ public class DisplayManager {
 	boolean collisionBottom;
 	Entity player;
 	IntVector2 plCell, flameCell;
+	Graphics g = null;
+
+	public void render(Canvas c) {
+		BufferStrategy bs = c.getBufferStrategy();
+		if(bs == null)
+		{
+			c.createBufferStrategy(Options.bufferCount);
+			c.requestFocus();
+			return;
+		}
+		g = bs.getDrawGraphics();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, c.getWidth(), c.getHeight());
+	}
 	
 	public void update(float delta)
 	{
 		player = Game.player;
+		SceneManager.updateScenes(delta);
 		if(LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
 			Vector2 checkedCell = map.checkCell(player.posX(), player.posY());
 			
