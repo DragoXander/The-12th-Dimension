@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -14,6 +15,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
@@ -28,6 +31,7 @@ import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.MakarovGun;
 import com.bdinc.t12d.scenes.DLCListDialog;
 import com.bdinc.t12d.scenes.LangListDialog;
+import com.bdinc.t12d.scenes.OptionsScreen;
 import com.bdinc.t12d.scenes.ProfilesListDialog;
 import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.settings.ResourcesManager;
@@ -44,7 +48,10 @@ public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
 	public static boolean isRunning;
-	public static long delta;
+	public static float delta, fps;
+	
+	public static float nextTickCount, sleepTime = 0;
+	
 	public static Graphics g;
 	
 	public static Game canvas;
@@ -54,7 +61,7 @@ public class Game extends Canvas implements Runnable {
 	public static final int WIDTH = 1120; //32 x35
 	public static final int HEIGHT = 704; //32 x22
 	
-	public static final String VERSION = "v1.0-build4";
+	public static final String VERSION = "v1.0-build4.6";
 	
 	public static final boolean isDevelopmentBuild = true;
 	public static boolean paused;
@@ -67,10 +74,14 @@ public class Game extends Canvas implements Runnable {
 	private static MouseInputManager mouseInputManager;
 	public static InputManager keyManager;
 	
+	public boolean shoot, enemy;
+	
 	public static UISlotOverlay QAPanel;
 	public static ArrayList<UISlot> QAPS = new ArrayList<UISlot>();
-	public static int qapWidth = 300, qapHeight = 60;
+	public static int qapWidth = 270, qapHeight = 60;
 	public static int qapX = WIDTH/2-(qapWidth/2), qapY = HEIGHT-(qapHeight+2);
+	
+	public static float time;
 	
 	public static LevelManager manager;
 	public Level lvl1;
@@ -99,7 +110,7 @@ public class Game extends Canvas implements Runnable {
 	
 	public static Entity player;
 	
-	public static Image m_playBtn, m_shopBtn, m_optBtn, m_exitBtn, m_extraBtn, m_storyBtn, m_langBtn,
+	public static Image m_playBtn, m_shopBtn, m_optBtn, m_exitBtn, m_extraBtn, m_storyBtn, m_langBtn, crosshair,
 	m_continueBtn;
 	
 	private static Thread gameStream;
@@ -115,19 +126,21 @@ public class Game extends Canvas implements Runnable {
 	{
 		QAPanel = new UISlotOverlay(qapX, qapY, qapWidth, qapHeight, 
 				ColorManager.getAlphaColor(ColorManager.GOLD, 70), Color.BLACK);
-		UISlot slotE = new UISlot(qapX+2, qapY+2, 60, 60, ColorManager.getAlphaColor(ColorManager.GOLD, 0), ColorManager.getAlphaColor(ColorManager.GOLD, 30), false);
+		UISlot slotE = new UISlot(qapX+2, qapY+2, 60, 60, ColorManager.getAlphaColor(ColorManager.GOLD, 0), ColorManager.getAlphaColor(ColorManager.GOLD, 80), false);
 		slotE.setBorderColor(Color.BLACK);
 		slotE.setCountInfoColor(Color.BLUE);
+		slotE.isQuickAccess = true;
+		MakarovGun g = new MakarovGun();
+		slotE.putItem(g);
 		QAPS.add(slotE);
-		for(int i = 1; i < 5; i++) {
+		for(int i = 1; i < 4; i++) {
 			UISlot slot = new UISlot(QAPS.get(i-1));
-				
 			if((qapX+qapWidth) - (slot.getX()+slot.getWidth()) < slot.getWidth()) {
 				slot.setLocation(QAPS.get(0).getX(),slot.getY()+slot.getHeight()+5);
-					
 			} else {
 				slot.setX(slot.getX()+slot.getWidth()+5);
 			}
+			slot.isQuickAccess = true;
 			QAPS.add(slot);
 		}
 		QAPanel.cells = QAPS;
@@ -166,6 +179,7 @@ public class Game extends Canvas implements Runnable {
 		ProfilesListDialog.init();
 		DLCListDialog.init();
 		LangListDialog.init();
+		OptionsScreen.init();
 		System.out.println("BufferStrategy created with buffer count: " + Options.bufferCount);
 		System.out.println("Music volume is: " + Options.musicVolume);
 		System.out.println("Ambient volume is: " + Options.ambientVolume);
@@ -254,9 +268,14 @@ public class Game extends Canvas implements Runnable {
 		System.out.println("Screen size is: " + screenSize.width + "x" + screenSize.height);
 		//Timer.waitSeconds(5);
 	}
-	
+	Timer t = new Timer();
 	public static void main(String[] args) {
-		
+		TimerTask tt = new TimerTask() {
+			@Override
+			public void run() {
+
+			}
+		};
 		canvas = new Game();
 		canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		canvas.addKeyListener(new KeyListener() {
@@ -358,11 +377,13 @@ public class Game extends Canvas implements Runnable {
 		gameWindow.dispose();
 	}
 	
-	public long deltaTime()
+	public float deltaTime()
 	{
 		return delta;
 	}
 	
+	int entityDamageMsgAlpha = 255;
+	public static float entityDamageMsgX, entityDamageMsgY;
 	public void render()
 	{
 		BufferStrategy bs = getBufferStrategy();
@@ -381,6 +402,13 @@ public class Game extends Canvas implements Runnable {
 		}
 		try
 		{
+//			if(log) {
+//				g.setColor(Color.WHITE);
+//				g.setFont(ResourcesManager.defaultFont22);
+//				FontMetrics fm = g.getFontMetrics();
+//				g.drawString(logMsg, WIDTH/2-fm.stringWidth(logMsg), HEIGHT/2);
+//				
+//			}
 			if(LevelManager.levelNumber > 0) {
 				if(LevelManager.levelNumber == 1) {
 					g.setColor(Color.BLACK);
@@ -388,7 +416,62 @@ public class Game extends Canvas implements Runnable {
 				}
 				try {
 					LevelManager.currentLevel.load(g);
+					for(Entity e : LevelManager.currentLevel.entities) {
+						if(e.damageShow) {
+							if(e.posY() - entityDamageMsgY >= 5 || entityDamageMsgAlpha <= 0) {
+								entityDamageMsgAlpha = 255;
+								entityDamageMsgX = e.posX();
+								entityDamageMsgY = e.posY();
+								e.damageShow = false;
+							}
+							g.setColor(ColorManager.getAlphaColor(Color.YELLOW, entityDamageMsgAlpha));
+							g.setFont(ResourcesManager.defaultFont12);
+							g.drawString("-"+e.lastHitDamage, (int)entityDamageMsgX, (int)entityDamageMsgY);
+							entityDamageMsgY -= 0.07f;
+							entityDamageMsgX = e.posX();
+							entityDamageMsgAlpha -= 1;
+						}
+						if(player.shootX >= e.posX() && player.shootX <= e.posX()+32) {
+							if(player.shootY >= e.posY() && player.shootY <= e.posY()+32) {
+								if(e.isEnemy) {
+									enemy = true;
+									player.shootTarget = e;
+									player.canAttack = true;
+									shoot = true;
+									break;
+								} else {
+									enemy = false;
+									player.shootTarget = e;
+									player.canAttack = false;
+									shoot = true;
+									continue;
+								}
+							} else {
+								shoot = false;
+								player.shootTarget = null;
+								player.canAttack = false;
+								continue;
+							}
+						} else {
+							shoot = false;
+							player.shootTarget = null;
+							player.canAttack = false;
+							continue;
+						}
+						
+					}
 					QAPanel.show(g);
+					if(shoot) {
+						if(enemy) {
+							crosshair = ResourcesManager.crosshairEnemy;
+						}
+						else {
+							crosshair = ResourcesManager.crosshairAlly;
+						}
+					} else {
+						crosshair = ResourcesManager.crosshair;
+					}
+					g.drawImage(crosshair, player.shootX-8, player.shootY-8, null);
 					if(player.inventoryShow) {
 						player.inventory.show(g);
 					}
@@ -406,7 +489,39 @@ public class Game extends Canvas implements Runnable {
 				g.fillRect(0, 0, WIDTH, HEIGHT);
 				try {
 					LevelManager.currentLevel.load(g);
+					for(Entity e : LevelManager.currentLevel.entities) {
+						if(player.shootX >= e.posX() && player.shootX <= e.posX()+32) {
+							if(player.shootY >= e.posY() && player.shootY <= e.posY()+32) {
+								if(e.isEnemy) {
+									enemy = true;
+									shoot = true;
+									break;
+								} else {
+									enemy = false;
+									shoot = true;
+									continue;
+								}
+							} else {
+								shoot = false;
+								continue;
+							}
+						} else {
+							shoot = false;
+							continue;
+						}
+					}
 					QAPanel.show(g);
+					if(shoot) {
+						if(enemy) {
+							crosshair = ResourcesManager.crosshairEnemy;
+						}
+						else {
+							crosshair = ResourcesManager.crosshairAlly;
+						}
+					} else {
+						crosshair = ResourcesManager.crosshair;
+					}
+					g.drawImage(crosshair, player.shootX-8, player.shootY-8, null);
 				}
 				catch(Exception e) {
 					System.err.println("Can't load the level (Level.load(Graphics g))");
@@ -433,6 +548,11 @@ public class Game extends Canvas implements Runnable {
 				g.setColor(Color.BLACK);
 				g.fillRect(0, 0, WIDTH, HEIGHT);
 				LangListDialog.load(g);
+			}
+			else if(LevelManager.levelNumber == -4) {
+				g.setColor(Color.BLACK);
+				g.fillRect(0, 0, WIDTH, HEIGHT);
+				OptionsScreen.load(g);
 			}
 			else {
 				/*
@@ -575,7 +695,6 @@ public class Game extends Canvas implements Runnable {
 				g.drawString(ResourcesManager.m_pauseOpt, m_optionsBtnX+5, m_optionsBtnY+30);
 				g.drawString(ResourcesManager.m_pauseEx, m_exmBtnX+5, m_exmBtnY+30);
 			}
-			
 		}
 		catch(Exception e)
 		{
@@ -592,15 +711,25 @@ public class Game extends Canvas implements Runnable {
 		
 		init();
 		display.init();
+		sleepTime = 0;
 		while(isRunning)
 		{
-			//System.out.println(""+paused);
-			delta = System.currentTimeMillis() - last;
+			//last = System.currentTimeMillis();
+			delta = (System.currentTimeMillis() - last);
 			last = System.currentTimeMillis();
+//			time++;
+//			//Debug.log(time);
+//			if(delta >= 5) {
+//				
+//				fps = time;
+//				Debug.log(fps+" FPS");
+//				//delta = 0;
+//				time = 0;
+//				//last = System.currentTimeMillis();
+//			}
+//			
 			display.update(delta);
-
 			render();
-			//System.out.println(""+player.getSpeed());
 		}
 		
 		

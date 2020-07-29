@@ -89,9 +89,9 @@ public class SlotContainer extends Block implements Serializable {
 		}
 		overlayBg = bg;
 		overlayBorderColor = border;
-		MakarovGun gun = new MakarovGun(ResourcesManager.makarovGun);
-		cells.get(0).putItem(gun);
-		cells.get(0).editItemCount(45);
+//		MakarovGun gun = new MakarovGun(ResourcesManager.makarovGun);
+//		cells.get(0).putItem(gun);
+//		cells.get(0).editItemCount(45);
 		
 		//Debug.log("SlotCountInfo: "+cells.get(1).getCountInfoColor().getRed());
 	}
@@ -142,7 +142,7 @@ public class SlotContainer extends Block implements Serializable {
 					g.setColor(Color.YELLOW);
 					g.setFont(ResourcesManager.defaultFont14);
 					g.drawString(ResourcesManager.interactTooltip, 5, Game.HEIGHT-30);
-					Game.player.isInteracting = true;
+					//Game.player.isInteracting = true;
 					if(show) {
 						overlay.isShow = true;
 						LevelManager.currentLevel.overlay = this.overlay;

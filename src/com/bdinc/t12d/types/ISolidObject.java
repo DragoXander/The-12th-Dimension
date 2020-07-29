@@ -6,7 +6,7 @@ import java.awt.Image;
 import com.bdinc.t12d.utils.IntVector2;
 
 public interface ISolidObject {
-	public boolean isSolid = true;
+	//public boolean isSolid = true;
 	
 	public void draw(Graphics g);
 	public String toString();

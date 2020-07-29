@@ -2,9 +2,8 @@ package com.bdinc.t12d.objects;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
@@ -13,7 +12,6 @@ import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.maths.Vector2;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.Inventory;
-import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.IntVector2;
 
 public class Entity implements Serializable {
@@ -24,7 +22,12 @@ public class Entity implements Serializable {
 	
 	public String id;
 	
-	public ArrayList<Item> invList = new ArrayList<Item>();
+	public boolean canAttack;
+	
+	public Entity shootTarget;
+	
+	public HashMap<Integer, Item> invList = new HashMap<Integer, Item>();
+	public int invSize = 0;
 	
 	private float direction = -0.5f;
 	
@@ -39,8 +42,14 @@ public class Entity implements Serializable {
 	private int magicCount = 50;
 	private int maxMagic = 50;
 	
-	public boolean inventoryShow;
+	public int lastHitDamage;
+	
+	public int shootX = 0, shootY = 0;
+	
+	public boolean inventoryShow, isEnemy, damageShow;
 	public Inventory inventory;
+	
+	public Item currentWeapon;
 	
 	public static Object interactiveTarget;
 	private float speed = 1f, runSpeed = 1.5f;
@@ -74,6 +83,26 @@ public class Entity implements Serializable {
 		position = map.checkCell(x, y);
 	}
 	
+	public void attack() {
+		int x = Game.player.shootX;
+		int y = Game.player.shootY;
+		if(currentWeapon instanceof Gun) {
+			Particle p = new Particle(ResourcesManager.bullet1_01);
+			p.setDirection(x, y);
+			p.setPositionByCords(x+32, y+8);
+			p.setSpeed(((Gun)currentWeapon).ammoSpeed);
+			p.damage = ((Gun)currentWeapon).hitDamage;
+			p.active = true;
+			LevelManager.currentLevel.particles.add(p);
+		}
+		
+	}
+	
+	public void addItem(Item i) {
+		invList.put(invSize+1, i);
+		invSize++;
+	}
+	
 	public void enemyMove() {
 		if(!Game.paused) {
 			if(!eMoving) {
@@ -83,10 +112,10 @@ public class Entity implements Serializable {
 			}
 			if(eMoving) {
 				if(cellX == enemyTmpX-2) {
-					direction = 0.5f;
+					direction = 0.2f;
 				}
 				else if(cellX == enemyTmpX+2) {
-					direction = -0.5f;
+					direction = -0.2f;
 				}
 				this.x = this.x + direction;
 				setCell(map.checkCell(x, y));
@@ -230,7 +259,7 @@ public class Entity implements Serializable {
 	public void attack(Entity target) {
 		Particle magic = new Particle(ResourcesManager.bullet1_01);
 		magic.setSource(this);
-		magic.setPosition(cellX, cellY+1);
+		magic.setPositionByCords(x, y);
 		magic.setSpeed(1);
 		magic.setTarget(target);
 		for(Particle p : LevelManager.currentLevel.particles) {
@@ -247,19 +276,19 @@ public class Entity implements Serializable {
 	}
 	
 	public void setAmmo(int value) {
-		this.ammo = value;
+		((Gun)this.currentWeapon).ammoCount = value;
 	}
 	
 	public void setMaxAmmo(int value) {
-		this.maxAmmo = value;
+		((Gun)this.currentWeapon).maxAmmoCount = value;
 	}
 	
 	public void increaseAmmo(int value) {
-		this.ammo += value;
+		((Gun)this.currentWeapon).ammoCount += value;
 	}
 	
 	public void decreaseAmmo(int value) {
-		this.ammo -= value;
+		((Gun)this.currentWeapon).ammoCount -= value;
 	}
 	
 	public void setHealth(int health) {
@@ -284,6 +313,11 @@ public class Entity implements Serializable {
 	
 	public void decreaseHealth(int value) {
 		this.health -= value;
+		this.lastHitDamage = value;
+		this.damageShow = false;
+		this.damageShow = true;
+		Game.entityDamageMsgX = x;
+		Game.entityDamageMsgX = y;
 	}
 	
 	public void setMagicCount(int magic) {
@@ -455,7 +489,18 @@ public class Entity implements Serializable {
 		}
 		try
 		{
+			if(health <= 0) {
+				LevelManager.currentLevel.entities.remove(this);
+			}
 			g.drawImage(texture, (int)x, (int)y, null);
+			for(Particle p : LevelManager.currentLevel.particles) {
+				if(p.position().x >= this.x && p.position().x <= this.x+32) {
+					if(p.position().y >= this.y && p.position().y <= this.y+32) {
+						health -= p.damage;
+						p.hit = true;
+					}
+				}
+			}
 		}
 		catch(Exception e)
 		{

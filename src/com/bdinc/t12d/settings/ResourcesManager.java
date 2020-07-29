@@ -65,8 +65,8 @@ public class ResourcesManager {
 	public static String m_playerMagic = "Player Mana: ";
 	public static String m_profileRuby = "Ruby count: ";
 	public static String interactTooltip = "Press [E] to interact";
-	public static String makarovAmmoDescStr = "It's a cool pistol!", 
-			makarovAmmoName  = "Makarov Gun";
+	public static String makarovGunDescStr = "It's a cool pistol!", makarovGunName  = "Makarov Gun";
+	public static String ammoInteractMsg  = "Ammo for: "; //!
 	public static String logErrNullProfile = "Choose a profile or create it, before you can play!";
 	public static String logErrLoadingGame = "Error with loading the game!";
 	public static String logErrDamagedData = "Data files are damaged!\nCan't load the game!";
@@ -121,6 +121,9 @@ public class ResourcesManager {
 	public static Image profile = new ImageIcon(guiDir+"/profile_image.png").getImage();
 	public static Image dlcIcon = new ImageIcon(guiDir+"/dlc_image.png").getImage();
 	public static Image langIcon = new ImageIcon(guiDir+"/lang.png").getImage();
+	public static Image crosshair = new ImageIcon(guiDir+"/crosshair.png").getImage();
+	public static Image crosshairEnemy = new ImageIcon(guiDir+"/crosshair_enemy.png").getImage();
+	public static Image crosshairAlly = new ImageIcon(guiDir+"/crosshair_ally.png").getImage();
 	
 	/*
 	 * #Blocks
@@ -142,6 +145,8 @@ public class ResourcesManager {
 	public static Image buttonActive = new ImageIcon(blocksDir+"/interactive/button_active.png").getImage();
 	public static Image vase = new ImageIcon(blocksDir+"/interactive/vase.png").getImage();
 	public static Image vaseBroken = new ImageIcon(blocksDir+"/interactive/vase_broken.png").getImage();
+	public static Image doorClosed = new ImageIcon(blocksDir+"/interactive/door.png").getImage();
+	public static Image doorOpened = new ImageIcon(blocksDir+"/interactive/door_open.png").getImage();
 	
 	/*
 	 * #Music

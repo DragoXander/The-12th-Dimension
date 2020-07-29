@@ -9,14 +9,21 @@ import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
+import com.bdinc.t12d.objects.Ammo;
 import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Button;
 import com.bdinc.t12d.objects.Chest;
 import com.bdinc.t12d.objects.Door;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
+import com.bdinc.t12d.objects.Gun;
+import com.bdinc.t12d.objects.Item;
+import com.bdinc.t12d.objects.Key;
+import com.bdinc.t12d.objects.MakarovAmmo;
+import com.bdinc.t12d.objects.MakarovGun;
 import com.bdinc.t12d.objects.Platform;
 import com.bdinc.t12d.objects.SlotContainer;
+import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UISlot;
 import com.bdinc.t12d.utils.ColorManager;
 import com.bdinc.t12d.utils.Container;
@@ -32,6 +39,8 @@ public class LevelReader {
 	private static boolean info = false;
 	private static boolean button = false;
 	private static boolean container = false;
+	private static boolean door = false;
+	private static boolean item = false, key = false, gun = false, ammo = false;
 	
 	private static String lvlName, lvlAuthor, lvlVer;
 	private static int lvlID;
@@ -43,6 +52,7 @@ public class LevelReader {
 		BufferedReader reader = null;
 		Level lvl = new Level();
 		ArrayList<Block> blocks = new ArrayList<Block>();
+		ArrayList<Item> items = new ArrayList<Item>();
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		ArrayList<Flame> flames = new ArrayList<Flame>();
 		ArrayList<SlotContainer> conts = new ArrayList<SlotContainer>();
@@ -71,7 +81,7 @@ public class LevelReader {
 				HashMap<String, String[]> map = readBlock(tmp[tmpIndex]+".", "#", ";", ":", "\\.");
 				
 				try {
-					analyzeCode(lvl, map, blocks, entities, flames, conts);
+					analyzeCode(lvl, map, blocks, items, entities, flames, conts);
 				}
 				catch(Exception e) {
 					e.printStackTrace();
@@ -136,6 +146,7 @@ public class LevelReader {
 		lvl.blocks = blocks;
 		lvl.flames = flames;
 		lvl.conts = conts;
+		lvl.items = items;
 		//Debug.log(lvlName);
 		lvl.setName(lvlName);
 		lvl.setID(lvlID);
@@ -158,7 +169,7 @@ public class LevelReader {
 		return value;
 	}
 	
-	private static void analyzeCode(Level lvl1, HashMap<String, String[]> map, ArrayList<Block> blocks, ArrayList<Entity> entities,
+	private static void analyzeCode(Level lvl1, HashMap<String, String[]> map, ArrayList<Block> blocks, ArrayList<Item> items, ArrayList<Entity> entities,
 			ArrayList<Flame> flames, ArrayList<SlotContainer> conts)
 	{
 		for(String n : map.keySet())
@@ -174,6 +185,26 @@ public class LevelReader {
 			}
 			else {
 				entity = false;
+			}
+			if(n.startsWith("ITM")) {
+				item = true;
+			}  else {
+				item = false;
+			}
+			if(n.startsWith("GUN")) {
+				gun = true;
+			}  else {
+				gun = false;
+			}
+			if(n.equals("KEY")) {
+				key = true;
+			}  else {
+				key = false;
+			}
+			if(n.startsWith("AMMO")) {
+				ammo = true;
+			} else {
+				ammo = false;
 			}
 			if(n.startsWith("PLT")) {
 				platform = true;
@@ -195,6 +226,11 @@ public class LevelReader {
 				container = true;
 			} else {
 				container = false;
+			}
+			if(n.startsWith("DOOR")) {
+				door = true;
+			} else {
+				door = false;
 			}
 			String[] vec = map.get(n);
 			Platform p = LevelManager.getPlatformByName(n);
@@ -236,6 +272,112 @@ public class LevelReader {
 							break;
 					}
 				}
+			} 
+			else if(ammo) {
+				Ammo itm = null;
+				String[] namePt = n.split("_");
+				switch(namePt[1]) {
+					case "MAKAROVGUN":
+						itm = new MakarovAmmo();
+						break;
+				}
+				for(int i = 0; i < vec.length; i++) {
+					String[] propertyParts = vec[i].split("=");
+					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
+						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
+					}
+					if (propertyParts[1].endsWith(" ") || propertyParts[1].startsWith(" ")) {
+						propertyParts[1] = propertyParts[1].replace(" ", "").trim();
+						
+					}
+					switch(propertyParts[0]) {
+						case "count": 
+							itm.setCount(Integer.parseInt(propertyParts[1]));
+							break;
+						case "position": 
+							String[] cds = propertyParts[1].split("\\,");
+							int x = Integer.parseInt(cds[0]);
+							int y = Integer.parseInt(cds[1]);
+							itm.setLocation(x, y);
+							break;
+					}
+				}
+				items.add(itm);
+			}
+			else if (gun) {
+				Gun itm = null;
+				String[] namePt = n.split("_");
+				switch(namePt[1]) {
+					case "MAKAROVGUN":
+						itm = new MakarovGun();
+						break;
+				}
+				for(int i = 0; i < vec.length; i++) {
+					String[] propertyParts = vec[i].split("=");
+					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
+						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
+					}
+					if (propertyParts[1].endsWith(" ") || propertyParts[1].startsWith(" ")) {
+						propertyParts[1] = propertyParts[1].replace(" ", "").trim();
+						
+					}
+					switch(propertyParts[0]) {
+						case "ammoCount":
+							itm.ammoCount = Integer.parseInt(propertyParts[1]);
+							break;
+						case "maxAmmoCount":
+							itm.maxAmmoCount = Integer.parseInt(propertyParts[1]);
+							break;
+						case "hitDamage":
+							itm.hitDamage = Integer.parseInt(propertyParts[1]);
+							break;
+						case "count":
+							itm.setCount(Integer.parseInt(propertyParts[1]));
+							break;
+						case "position":
+							String[] cords = propertyParts[1].split("\\,");
+							int x = Integer.parseInt(cords[0]);
+							int y = Integer.parseInt(cords[1]);
+							itm.setLocation(x, y);
+							break;
+					}
+				}
+				items.add(itm);
+			} 
+			else if (key) {
+				Key k = null;
+				for(int i = 0; i < vec.length; i++) {
+					String[] propertyParts = vec[i].split("=");
+					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
+						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
+					}
+					if (propertyParts[1].endsWith(" ") || propertyParts[1].startsWith(" ")) {
+						propertyParts[1] = propertyParts[1].replace(" ", "").trim();
+						
+					}
+					switch(propertyParts[0]) {
+						case "type":
+							switch(propertyParts[1]) {
+								case "0":
+									k = new Key(ResourcesManager.key);
+									break;
+								default:
+									k = new Key(ResourcesManager.key);
+									break;
+							}
+							break;
+						case "position":
+							String[] cords = propertyParts[1].split("\\,");
+							int x = Integer.parseInt(cords[0]);
+							int y = Integer.parseInt(cords[1]);
+							k.setLocation(x, y);
+							break;
+						case "count":
+							k.setCount(Integer.parseInt(propertyParts[1]));
+							break;
+					}
+				}
+				items.add(k);
 			}
 			else if(platform) {
 				for(int i = 0; i < 4; i++) {
@@ -272,8 +414,54 @@ public class LevelReader {
 				//System.out.println(""+p.getCell().x);
 				blocks.add(p);
 			} 
+			else if (door) {
+				Door d = new Door(ResourcesManager.doorClosed);
+				for(int i = 0; i < vec.length; i++) {
+					String[] propertyParts = vec[i].split("=");
+					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
+						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
+					}
+					if (propertyParts[1].endsWith(" ") || propertyParts[1].startsWith(" ")) {
+						propertyParts[1] = propertyParts[1].replace(" ", "").trim();
+					}
+					switch(propertyParts[0]) {
+						case "isOpened":
+							if(propertyParts[1].equals("true")) {
+								d.open();
+							} else {
+								d.close();
+							}
+							break;
+						case "key":
+							String[] cord = propertyParts[1].split("\\,");
+							int x = Integer.parseInt(cord[0]);
+							int y = Integer.parseInt(cord[1]);
+							for(Item it : items) {
+								if(it instanceof Key) {
+									Key k = (Key)it;
+									if(k.getCell().x == x && k.getCell().y == y) {
+										d.setKey(k);
+									}
+								}
+							}
+							break;
+						case "requiresKey":
+							boolean reqK = Boolean.parseBoolean(propertyParts[1]);
+							d.requiresKey = reqK;
+							break;
+						case "position":
+							String[] cord2 = propertyParts[1].split("\\,");
+							int x2 = Integer.parseInt(cord2[0]);
+							int y2 = Integer.parseInt(cord2[1]);
+							d.setLocation(x2, y2);
+							break;
+					}
+				}
+				//Debug.log(d.getCell().x+","+d.getCell().y);
+				blocks.add(d);
+			}
 			else if(button) {
-				for(int i = 0; i < 5; i++) {
+				for(int i = 0; i < vec.length; i++) {
 					String[] propertyParts = vec[i].split("=");
 					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
 						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
@@ -306,9 +494,9 @@ public class LevelReader {
 								
 							} else if (propertyParts[1].startsWith("door")) {
 								Door pl = new Door(null);
-								String[] plP1 = propertyParts[1].split("(");
-								String[] plP2 = plP1[1].split(")");
-								String[] cords = plP2[0].split(",");
+								String[] plP1 = propertyParts[1].split("\\(");
+								String[] plP2 = plP1[1].split("\\)");
+								String[] cords = plP2[0].split("\\,");
 								int x = Integer.parseInt(cords[0]);
 								int y = Integer.parseInt(cords[1]);
 								for(Block bck : blocks) {
@@ -320,11 +508,27 @@ public class LevelReader {
 									}
 									
 								}
+							} else if (propertyParts[1].startsWith("block")) {
+								Block pl = new Block(null);
+								String[] plP1 = propertyParts[1].split("\\(");
+								String[] plP2 = plP1[1].split("\\)");
+								String[] cords = plP2[0].split("\\,");
+								int x = Integer.parseInt(cords[0]);
+								int y = Integer.parseInt(cords[1]);
+								for(Block bck : blocks) {
+									if(bck instanceof Block) {
+										Block ct = (Block)bck;
+										if(ct.getCell().x == x && ct.getCell().y == y) {
+											btn.setActionObject(ct);
+										}
+									}
+									
+								}
 							} else if (propertyParts[1].startsWith("chest")) {
 								Chest pl = new Chest(null);
-								String[] plP1 = propertyParts[1].split("(");
-								String[] plP2 = plP1[1].split(")");
-								String[] cords = plP2[0].split(",");
+								String[] plP1 = propertyParts[1].split("\\(");
+								String[] plP2 = plP1[1].split("\\)");
+								String[] cords = plP2[0].split("\\,");
 								int x = Integer.parseInt(cords[0]);
 								int y = Integer.parseInt(cords[1]);
 								for(Block bck : blocks) {
@@ -366,141 +570,171 @@ public class LevelReader {
 				int g = 0;
 				int b = 0;
 				int a = 0;
+				int cellCount = 0;
+				for(int i = 0; i < vec.length; i++) {
+					String[] propertyParts = vec[i].split("=");
+					if(propertyParts[0].startsWith("cell")) {
+						cellCount += 1;
+					}
+				}
+				Item[] slots = new Item[cellCount];
+				//Debug.log("Count: "+);
 				for(int i = 0; i < vec.length; i++) {
 					//System.out.println("property: "+vec[i]);
 					String[] propertyParts = vec[i].split("=");
-					//System.out.println(propertyParts[1]);
 					if(propertyParts[0].endsWith(" ") || propertyParts[0].startsWith(" ")) {
 						propertyParts[0] = propertyParts[0].replace(" ", "").trim();
 					}
 					if (propertyParts[1].endsWith(" ") || propertyParts[1].startsWith(" ")) {
 						propertyParts[1] = propertyParts[1].replace(" ", "").trim();
-						
 					}
-					switch(propertyParts[0]) {
-						case "slotWidth":
-							slotW = Integer.parseInt(propertyParts[1]);
-							break;
-						case "slotHeight":
-							slotH = Integer.parseInt(propertyParts[1]);
-							break;
-						case "slotNumber":
-							slotNum = Integer.parseInt(propertyParts[1]);
-							break;
-						case "overlayWidth":
-							ovW = Integer.parseInt(propertyParts[1]);
-							break;
-						case "overlayHeight":
-							ovH = Integer.parseInt(propertyParts[1]);
-							break;
-						case "overlayBackground":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							ovBg = new Color(r, g, b, a);
-							break;
-						case "overlayBorderColor":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							ovBorder = new Color(r, g, b, a);
-							break;
-						case "slotBackground":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							slotBg = new Color(r, g, b, a);
-							break;
-						case "slotBorderColor":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							slotBorder = new Color(r, g, b, a);
-							break;
-						case "slotItemCountColor":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							slotInfo = new Color(r, g, b, a);
-							//Debug.log("R:"+r+" G:"+g+" B:"+b+" A:"+a);
-							break;
-						case "slotHoverColor":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							slotHover = new Color(r, g, b, a);
-							break;
-						case "tooltipBackground":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							ttipBg = new Color(r, g, b, a);
-							break;
-						case "tooltipBorder":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							ttipBorder = new Color(r, g, b, a);
-							break;
-						case "tooltipTextColor":
-							p1 = propertyParts[1].split("\\(");
-							p2 = p1[1].split("\\)");
-							properties = p2[0].split("\\,");
-							r = Integer.parseInt(properties[0]);
-							g = Integer.parseInt(properties[1]);
-							b = Integer.parseInt(properties[2]);
-							a = Integer.parseInt(properties[3]);
-							ttipTxt = new Color(r, g, b, a);
-							break;
-						case "position":
-							String[] cords = propertyParts[1].split("\\,");
-							int x = Integer.parseInt(cords[0]);
-							int y = Integer.parseInt(cords[1]);
-							cont.setLocation(x, y);
-							break;
+					if(propertyParts[0].startsWith("cell"))	{
+						String[] t1 = propertyParts[0].split("\\[");
+						String[] t2 = t1[1].split("\\]");
+						int index = Integer.parseInt(t2[0]);
+						String[] t3 = propertyParts[1].split("\\(");
+						switch(t3[0]) {
+							case "item":
+								String[] t4 = t3[1].split("\\)");
+								String[] args = t4[0].split(",");
+								args[0] = args[0].replace("\"", "").trim();
+								switch(args[0]) {
+									case "MakarovGun":
+										slots[index] = new MakarovGun(ResourcesManager.makarovGun);
+										slots[index].setCount(Integer.parseInt(args[1].trim()));
+										break;
+								}
+								break;
+						}
+					} else {
+						switch(propertyParts[0]) {
+							case "slotWidth":
+								slotW = Integer.parseInt(propertyParts[1]);
+								break;
+							case "slotHeight":
+								slotH = Integer.parseInt(propertyParts[1]);
+								break;
+							case "slotNumber":
+								slotNum = Integer.parseInt(propertyParts[1]);
+								break;
+							case "overlayWidth":
+								ovW = Integer.parseInt(propertyParts[1]);
+								break;
+							case "overlayHeight":
+								ovH = Integer.parseInt(propertyParts[1]);
+								break;
+							case "overlayBackground":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								ovBg = new Color(r, g, b, a);
+								break;
+							case "overlayBorderColor":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								ovBorder = new Color(r, g, b, a);
+								break;
+							case "slotBackground":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								slotBg = new Color(r, g, b, a);
+								break;
+							case "slotBorderColor":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								slotBorder = new Color(r, g, b, a);
+								break;
+							case "slotItemCountColor":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								slotInfo = new Color(r, g, b, a);
+								//Debug.log("R:"+r+" G:"+g+" B:"+b+" A:"+a);
+								break;
+							case "slotHoverColor":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								slotHover = new Color(r, g, b, a);
+								break;
+							case "tooltipBackground":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								ttipBg = new Color(r, g, b, a);
+								break;
+							case "tooltipBorder":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								ttipBorder = new Color(r, g, b, a);
+								break;
+							case "tooltipTextColor":
+								p1 = propertyParts[1].split("\\(");
+								p2 = p1[1].split("\\)");
+								properties = p2[0].split("\\,");
+								r = Integer.parseInt(properties[0]);
+								g = Integer.parseInt(properties[1]);
+								b = Integer.parseInt(properties[2]);
+								a = Integer.parseInt(properties[3]);
+								ttipTxt = new Color(r, g, b, a);
+								break;
+							case "position":
+								String[] cords = propertyParts[1].split("\\,");
+								int x = Integer.parseInt(cords[0]);
+								int y = Integer.parseInt(cords[1]);
+								cont.setLocation(x, y);
+								break;
+						}	
 					}
 				}
 				UISlot slot = new UISlot(0, 0, slotW, slotH, slotBg, slotHover, true);
 				slot.setBorderColor(slotBorder);
 				slot.setCountInfoColor(slotInfo);
-				//Debug.log("Slot: "+slot.getCountInfoColor());
-				//Debug.log("SLINFO: "+slotInfo.getRed()+","+slotInfo.getGreen()+","+slotInfo.getBlue());
 				slot.setTooltipBackground(ttipBg);
 				slot.setTooltipBorderColor(ttipBorder);
 				slot.setTooltipTextColor(ttipTxt);
 				cont.init(slotNum, ovBg, ovBorder,slot, ovW, ovH);
+				//Debug.log(slots.length);
+				for(int i = 0; i < slots.length; i++) {
+					cont.cells.get(i).putItem(slots[i]);
+					cont.cells.get(i).setItemCount(slots[i].getCount());
+				}
 				conts.add(cont);
 			}
 			else 
@@ -523,8 +757,12 @@ public class LevelReader {
 								Flame f = LevelManager.getFlame(n);
 								f.setLocation(j, Integer.parseInt(v[1]));
 								flames.add(f);
+							} else if (item) {
+								Item it = LevelManager.getItemByName(n);
+								it.setLocation(j, Integer.parseInt(v[1]));
+								items.add(it);
 							}
-							else if(!entity && !flame && !platform)
+							else if(!entity && !flame && !platform && !door && !container && !button && !item)
 							{
 								Block b = LevelManager.getObjectByName(n);
 								b.setLocation(j, Integer.parseInt(v[1]));
@@ -548,8 +786,12 @@ public class LevelReader {
 								Flame f = LevelManager.getFlame(n);
 								f.setLocation(Integer.parseInt(v[0]), j);
 								flames.add(f);
+							} else if (item) {
+								Item it = LevelManager.getItemByName(n);
+								it.setLocation(Integer.parseInt(v[0]), j);
+								items.add(it);
 							}
-							else if(!entity && !flame && !platform)
+							else if(!entity && !flame && !platform && !door && !container && !button && !item)
 							{
 								Block b = LevelManager.getObjectByName(n);
 								b.setLocation(Integer.parseInt(v[0]), j);
@@ -570,8 +812,12 @@ public class LevelReader {
 							Flame f = LevelManager.getFlame(n);
 							f.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
 							flames.add(f);
+						} else if (item) {
+							Item it = LevelManager.getItemByName(n);
+							it.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));
+							items.add(it);
 						}
-						else if(!entity && !flame && !platform)
+						else if(!entity && !flame && !platform && !door && !container && !button && !item)
 						{
 							Block b = LevelManager.getObjectByName(n);
 							b.setLocation(Integer.parseInt(v[0]), Integer.parseInt(v[1]));

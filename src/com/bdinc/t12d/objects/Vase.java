@@ -39,7 +39,7 @@ public class Vase extends SlotContainer {
 					g.setColor(Color.YELLOW);
 					g.setFont(ResourcesManager.defaultFont14);
 					g.drawString(ResourcesManager.interactTooltip, 5, Game.HEIGHT-30);
-					Game.player.isInteracting = true;
+					//Game.player.isInteracting = true;
 					if(show) {
 						overlay.isShow = true;
 						LevelManager.currentLevel.overlay = this.overlay;

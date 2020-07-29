@@ -20,7 +20,7 @@ public class UICell {
 	
 	public boolean isSelected, useArrow;
 	
-	private String title, description;
+	private String title = "", description = "";
 	
 	private Font titleFont, descriptionFont;
 	

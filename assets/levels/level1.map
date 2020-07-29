@@ -3,30 +3,6 @@
 	levelID = 1;
 	author = "Alexandr Tulyakov";
 	version = "1,0".
-#BRICK_DANGEON:
-	0-7,0;
-	0,1-5;
-	1-7,5;
-	7,1-2;
-	7,6-13;
-	8-19,13;
-	19,5-12;
-	19,0-2;
-	8-18,1;
-	14-18,5;
-	20-30,0;
-	30,1-2;
-	31-34,2;
-	30-34,5;
-	30,6-21;
-	13-29,21;
-	13,17-20;
-	14-27,17;
-	19,14-16;
-	20-22,10;
-	27-29,13;
-	20-24,13;
-	22-27,5.
 #ENT_MONST_FIRE:
 	16,4.
 #WALL_DANGEON:
@@ -70,6 +46,31 @@
 	14-29,20;
 	30-33,3;
 	30-33,4.
+#BRICK_DANGEON:
+	0-7,0;
+	0,1-5;
+	1-7,5;
+	7,1-2;
+	7,6-13;
+	8-19,13;
+	19,5-12;
+	19,0-2;
+	8-18,1;
+	14-18,5;
+	20-30,0;
+	30,1-2;
+	31-34,2;
+	30-34,5;
+	34,3;
+	30,6-21;
+	13-29,21;
+	13,17-20;
+	14-27,17;
+	19,14-16;
+	20-22,10;
+	27-29,13;
+	20-24,13;
+	22-27,5.
 #PLT_HORIZONTAL_DANGEON:
 	speed = 0,2;
 	count = 2;
@@ -98,11 +99,28 @@
 #FLAME:
 	6,4;
 	17,4.
+#AMMO_MAKAROVGUN:
+	count = 20;
+	position = 14,4.
+#KEY:
+	type = 0;
+	count = 5;
+	position = 5,4.
+#DOOR:
+	position = 19,4;
+	requiresKey = true;
+	key = 5,4;
+	isOpened = false.
+#DOOR:
+	position = 34,4;
+	requiresKey = true;
+	key = 3,4;
+	isOpened = false.
 #BUTTON:
-	target = platform(11,5);
+	target = block(34,3);
 	onceClick = true;
-	commandArgs = "move(position[11,4])";
-	position = 6,3;
+	commandArgs = "transform(position[34,4]/isStatic[true])";
+	position = 1,3;
 	active = false.
 #CONT_CHEST:
 	slotWidth = 50;
@@ -119,13 +137,12 @@
 	tooltipTextColor = color(255,255,255,255);
 	overlayWidth = 500;
 	overlayHeight = 500;
-	position = 2,4;
-	#SLOTS:
-		0=item("MakarovGun", 3);
-		1=item("MakarovGun", 3);
-		2=item("MakarovGun", 3);
-		3=item("MakarovGun", 3);
-		4=item("MakarovGun", 3).
+	cell[0]=item("MakarovGun", 3);
+	cell[1]=item("MakarovGun", 4);
+	cell[2]=item("MakarovGun", 5);
+	cell[3]=item("MakarovGun", 6);
+	cell[4]=item("MakarovGun", 7);
+	position = 13,12.
 #CONT_VASE:
 	slotWidth = 50;
 	slotHeight = 50;

@@ -1,23 +1,20 @@
 package com.bdinc.t12d.graphics;
 
-import java.awt.Canvas;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
-import com.bdinc.t12d.level.Level;
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.maths.Map;
 import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.maths.Vector2;
 import com.bdinc.t12d.objects.Block;
-import com.bdinc.t12d.objects.Chest;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.objects.Item;
+import com.bdinc.t12d.objects.MakarovAmmo;
 import com.bdinc.t12d.objects.Particle;
 import com.bdinc.t12d.objects.Platform;
-import com.bdinc.t12d.objects.SlotContainer;
-import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UISlot;
 import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.IntVector2;
@@ -41,7 +38,7 @@ public class DisplayManager {
 	Entity player;
 	IntVector2 plCell, flameCell;
 	
-	public void update(long delta)
+	public void update(float delta)
 	{
 		player = Game.player;
 		if(LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
@@ -54,13 +51,27 @@ public class DisplayManager {
 			collisionBottom = Physics.collidesBottom(player.posX(), player.posY());
 			plCell = Game.player.getCell();
 			
-			for(int i = 0; i < player.invList.size(); i++) {
-				if(!(i >= player.inventory.cells.size())) {
-					//Debug.log(player.invList.get(i).getSprite().equals(ResourcesManager.makarovGun));
-					player.inventory.cells.get(i).putItem(player.invList.get(i));
-					//Debug.log(player.invList.get(i).equals(player.inventory.cells.get(i).getItem()));
+			if(player.invSize != player.invList.size() || player.inventory.change) {
+//				for(UISlot c : player.inventory.cells) {
+//					c.putItem(null);
+//					c.hasItem = false;
+//				}
+				for(int i = 0; i < player.invList.size(); i++) {
+					if(!(i >= player.inventory.cells.size())) {
+						//player.inventory.cells.get(i).putItem(player.invList.get(i));
+						if(!player.inventory.cells.get(i).equals(player.invList.get(i))) {
+							if(!player.invList.get(i).equals(null)) {
+								player.inventory.cells.get(i).putItem(player.invList.get(i));
+							} else {
+								player.inventory.cells.get(i).removeItem();
+							}
+							
+						}
+					}
+					
 				}
-				
+				//player.invSize = player.invList.size();
+				player.inventory.change = false;
 			}
 			
 //			if(!Game.paused) {
@@ -80,14 +91,21 @@ public class DisplayManager {
 					
 				}
 			}
-
-			for (Block b : LevelManager.currentLevel.blocks) {
-				if (b.isInteractive) {
-					if (player.getCell().x == b.getCell().x-1 || player.getCell().x == b.getCell().x+1 || player.getCell().x == b.getCell().x) {
-						if (player.getCell().y == b.getCell().y || player.getCell().y == b.getCell().y+1) {
-							player.isInteracting = true;
-							player.interactiveTarget = b;
-							break;
+			
+			for (Object a : LevelManager.currentLevel.levelObjects) {
+				if(a instanceof Block) {
+					Block b = (Block)a;
+					if (b.isInteractive) {
+						if (player.getCell().x == b.getCell().x-1 || player.getCell().x == b.getCell().x+1 || player.getCell().x == b.getCell().x) {
+							if (player.getCell().y == b.getCell().y || player.getCell().y == b.getCell().y+1) {
+								player.isInteracting = true;
+								player.interactiveTarget = b;
+								break;
+							} else {
+								player.isInteracting = false;
+								player.interactiveTarget = null;
+								continue;
+							}
 						} else {
 							player.isInteracting = false;
 							player.interactiveTarget = null;
@@ -98,12 +116,58 @@ public class DisplayManager {
 						player.interactiveTarget = null;
 						continue;
 					}
-				} else {
-					player.isInteracting = false;
-					player.interactiveTarget = null;
-					continue;
+				} 
+				else if (a instanceof Item) {
+					Item b = (Item)a;
+					if (b.isInteractive) {
+						if (player.getCell().x == b.getCell().x-1 || player.getCell().x == b.getCell().x+1 || player.getCell().x == b.getCell().x) {
+							if (player.getCell().y == b.getCell().y || player.getCell().y == b.getCell().y+1) {
+								player.isInteracting = true;
+								player.interactiveTarget = b;
+								//Debug.log(player.interactiveTarget);
+								break;
+							} else {
+								player.isInteracting = false;
+								player.interactiveTarget = null;
+								continue;
+							}
+						} else {
+							player.isInteracting = false;
+							player.interactiveTarget = null;
+							continue;
+						}
+					} else {
+						player.isInteracting = false;
+						player.interactiveTarget = null;
+						continue;
+					}
 				}
+				
 			}
+			
+//			for (Item i : LevelManager.currentLevel.items) {
+//				if (i.isInteractive) {
+//					if (player.getCell().x == i.getCell().x-1 || player.getCell().x == i.getCell().x+1 || player.getCell().x == i.getCell().x) {
+//						if (player.getCell().y == i.getCell().y || player.getCell().y == i.getCell().y+1) {
+//							player.isInteracting = true;
+//							player.interactiveTarget = i;
+//							break;
+//						} else {
+//							player.isInteracting = false;
+//							player.interactiveTarget = null;
+//							continue;
+//						}
+//					} else {
+//						player.isInteracting = false;
+//						player.interactiveTarget = null;
+//						continue;
+//					}
+//				} else {
+//					player.isInteracting = false;
+//					player.interactiveTarget = null;
+//					continue;
+//				}
+//			}
 			
 			//Debug.log("Interact:"+Game.player.isInteracting+", Target:"+Game.player.interactiveTarget);
 			
@@ -141,10 +205,20 @@ public class DisplayManager {
 			}
 			
 			if(particles.size() > 0 && !Game.paused) {
-				for(Particle p : particles) {
-					if(p.active) {
-						p.move();
+				ListIterator<Particle> it = particles.listIterator();
+				if(it.hasNext()) {
+					Particle p = it.next();
+					p.move();
+					if(p.position().x >= Game.WIDTH || p.position().x <= 0) {
+						p.hit = true;
 					}
+					if(p.position().y >= Game.HEIGHT || p.position().y <= 0) {
+						p.hit = true;
+					}
+					if(p.hit) {
+						particles.remove(p);
+					}
+					
 				}
 			}
 			if(!Game.paused) {

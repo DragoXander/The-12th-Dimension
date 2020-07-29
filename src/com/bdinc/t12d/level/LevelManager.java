@@ -7,6 +7,8 @@ import com.bdinc.t12d.objects.Chest;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
 import com.bdinc.t12d.objects.HorizontalPlatform;
+import com.bdinc.t12d.objects.Item;
+import com.bdinc.t12d.objects.MakarovGun;
 import com.bdinc.t12d.objects.Platform;
 import com.bdinc.t12d.objects.SlotContainer;
 import com.bdinc.t12d.objects.Vase;
@@ -31,6 +33,7 @@ public class LevelManager {
 	public static final String CHEST = "CHEST";
 	public static final String VASE = "VASE";
 	public static final String KEY = "KEY";
+	public static final String DOOR = "DOOR";
 	public static final String BUTTON = "BUTTON";
 	public static final String BULLET_PACK_DEF = "BulletPack_Default";
 	public static final String FINISH = "FINISH";
@@ -41,6 +44,7 @@ public class LevelManager {
 	public static final String FLAME_OFF = "FLAME";
 	public static final String FLAME = "FLAME_ACTIVE";
 	public static final String BUTTON_DEFAULT = "BUTTON";
+	public static final String MAKAROV_GUN = "MAKAROV_GUN";
 	public static final String CONT_CHEST = "CONT_CHEST";
 	public static final String CONT_VASE = "CONT_VASE";
 	
@@ -52,6 +56,9 @@ public class LevelManager {
 	
 	public static void setLevelByID(int ID) {
 		switch(ID) {
+			case -4:
+				levelNumber = -4;
+				break;
 			case -3:
 				levelNumber = -3;
 				break;
@@ -130,9 +137,19 @@ public class LevelManager {
 		switch(name) {
 			case FIRE_MAN:
 				Entity ent = new Entity(resources.monstFire);
-				ent.setHealth(100);
+				ent.isEnemy = true;
+				ent.setHealth(15);
 				ent.setMagicCount("unlimited");
 				return ent;
+			default:
+				return null;
+		}
+	}
+	
+	public static Item getItemByName(String name) {
+		switch(name) {
+			case MAKAROV_GUN:
+				return new MakarovGun();
 			default:
 				return null;
 		}

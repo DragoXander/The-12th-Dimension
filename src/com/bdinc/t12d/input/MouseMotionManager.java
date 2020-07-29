@@ -10,9 +10,12 @@ import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.objects.SlotContainer;
 import com.bdinc.t12d.scenes.DLCListDialog;
 import com.bdinc.t12d.scenes.LangListDialog;
+import com.bdinc.t12d.scenes.OptionsScreen;
 import com.bdinc.t12d.scenes.ProfilesListDialog;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UICell;
+import com.bdinc.t12d.ui.UIComponent;
+import com.bdinc.t12d.ui.UIDropList;
 import com.bdinc.t12d.ui.UISlot;
 import com.bdinc.t12d.utils.ColorManager;
 import com.bdinc.t12d.utils.Debug;
@@ -27,6 +30,8 @@ public class MouseMotionManager extends MouseAdapter implements MouseMotionListe
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		Game.player.shootX = e.getX();
+		Game.player.shootY = e.getY();
 		if(Game.paused) {
 			if(e.getX() >= Game.m_continueBtnX && e.getX() <= Game.m_continueBtnX+300) {
 				if(e.getY() >= Game.m_continueBtnY && e.getY() <= Game.m_continueBtnY+45) {
@@ -249,31 +254,71 @@ public class MouseMotionManager extends MouseAdapter implements MouseMotionListe
 					c.setBackground(c.getActiveColor());
 				}
 			}
-		} else if(LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
+		}
+		else if(LevelManager.levelNumber == -4) {
+			if(e.getX() >= OptionsScreen.btnBackX && e.getX() <= OptionsScreen.btnBackX+OptionsScreen.btnBackWidth) {
+				if(e.getY() >= OptionsScreen.btnBackY && e.getY() <= OptionsScreen.btnBackY+OptionsScreen.btnBackHeight) {
+					OptionsScreen.btnBackColor = Color.BLUE;
+				}
+				else {
+					OptionsScreen.btnBackColor = Color.RED;
+				}
+			} else {
+				OptionsScreen.btnBackColor = Color.RED;
+			}
+			for(UIComponent c : OptionsScreen.ui) {
+				if(c instanceof UIDropList){
+					UIDropList dl = (UIDropList)c;
+					if(e.getX() >= dl.getX() && e.getX() <= dl.getX()+dl.getWidth()) {
+						if(e.getY() >= dl.getY() && e.getY() <= dl.getY()+dl.getHeight()) {
+							dl.isHover = true;
+						}
+						else {
+							dl.isHover = false;
+						}
+					} else {
+						dl.isHover = false;
+					}
+					if(dl.drop) {
+						for(UICell uc : dl.cells) {
+							if(!uc.isSelected) {
+								if(e.getX() >= uc.getX() && e.getX() <= uc.getX()+uc.getWidth()) {
+									if(e.getY() >= uc.getY() && e.getY() <= uc.getY()+uc.getHeight()) {
+										uc.setBackground(uc.hoverColor);
+									} else {
+										uc.resetBackground();
+									}
+								} else {
+									uc.resetBackground();
+								}
+							}
+							
+						}
+					}
+				}
+			}
+		}
+		else if(LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
 			if (Game.player.inventoryShow) {
+				for(UISlot c : Game.player.inventory.cells) {
+					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
+						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
+							c.isHover = true;
+						} else {
+							c.isHover = false;
+						}
+					} else {
+						c.isHover = false;
+					}
+				}
+			}
+			if (Game.player.inventoryShow && Game.player.inventory.dragging) {
 				/*
 				 * Armor cells must be described too.
 				 * Don't forget!
 				 */
-				for(UISlot c : Game.player.inventory.cells) {
-					//Debug.log("X:"+e.getX());
-					if(c.isDragging) {
-						//Debug.log("X:"+e.getX());
-						c.imgX = e.getX();
-						c.imgY = e.getY();
-					} 
-					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
-						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
-							c.isHover = true;
-						}
-						else {
-							c.isHover = false;
-						}
-					}
-					else {
-						c.isHover = false;
-					}
-				}
+				Game.player.inventory.dragCell.imgX = e.getX();
+				Game.player.inventory.dragCell.imgY = e.getY();
 			}
 			for(SlotContainer c : LevelManager.currentLevel.conts) {
 				for(UISlot cell : c.cells) {

@@ -3,11 +3,11 @@ LevelID:1
 LevelAuthor:Alexandr Tulyakov
 LevelVersion:1,0
 Level.isExtra:false
-Player.position.x:220.99347
+Player.position.x:222.69359
 Player.position.y:129.0
 Player.position.cellX:6
 Player.position.cellY:4
-Player.health:100
+Player.health:96
 Player.maxHealth:100
 Player.ammo:30
 Player.maxAmmo:30

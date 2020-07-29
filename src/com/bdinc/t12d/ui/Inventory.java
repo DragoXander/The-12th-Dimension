@@ -20,6 +20,9 @@ public class Inventory {
 	public ArrayList<UISlot> cells = new ArrayList<UISlot>();
 	public ArrayList<UISlot> armor = new ArrayList<UISlot>();
 	
+	public UISlot dragCell;
+	public boolean dragging, change;
+	
 	public Inventory() {
 		x = Game.WIDTH/2-(width/2);
 		y = Game.HEIGHT/2-(height/2);
@@ -35,6 +38,7 @@ public class Inventory {
 		cell.setBorderColor(Color.BLACK);
 		cell.setLocation(helmetSlotX, helmetSlotY);
 		cell.setCountInfoColor(Color.white);
+		cell.invSlot = true;
 		armor.add(cell);
 		UISlot body = new UISlot(cell);
 		body.setLocation(bodySlotX, bodySlotY);
@@ -78,6 +82,7 @@ public class Inventory {
 		cell.setBorderColor(Color.BLACK);
 		cell.setLocation(helmetSlotX, helmetSlotY);
 		cell.setCountInfoColor(Color.white);
+		cell.invSlot = true;
 		cells.add(cell);
 		UISlot body = new UISlot(cell);
 		body.setLocation(bodySlotX, bodySlotY);
@@ -101,6 +106,7 @@ public class Inventory {
 			cells.add(c);
 		}
 		height = cells.get(cells.size()-1).getY()-slotSize;
+		
 	}
 	
 	public void show(Graphics g) {

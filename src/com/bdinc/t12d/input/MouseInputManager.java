@@ -9,21 +9,28 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 
 import com.bdinc.t12d.level.Level;
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
+import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Flame;
+import com.bdinc.t12d.objects.Gun;
 import com.bdinc.t12d.objects.Item;
 import com.bdinc.t12d.objects.MakarovGun;
+import com.bdinc.t12d.objects.Particle;
 import com.bdinc.t12d.scenes.DLCListDialog;
 import com.bdinc.t12d.scenes.LangListDialog;
+import com.bdinc.t12d.scenes.OptionsScreen;
 import com.bdinc.t12d.scenes.ProfilesListDialog;
 import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.UICell;
+import com.bdinc.t12d.ui.UIComponent;
+import com.bdinc.t12d.ui.UIDropList;
 import com.bdinc.t12d.ui.UISlot;
 import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.LangManager;
@@ -66,14 +73,14 @@ public class MouseInputManager implements MouseListener {
 						} else {
 							try {
 								if(loadGame() != -1) {
-									Game.player.invList.add(new MakarovGun(ResourcesManager.makarovGun));
-									Game.player.invList.add(new MakarovGun(ResourcesManager.key));
-									Game.player.invList.add(new MakarovGun(ResourcesManager.makarovGun));
-									Game.player.invList.add(new MakarovGun(ResourcesManager.key));
+									Game.player.addItem(new MakarovGun(ResourcesManager.makarovGun));
+									Game.player.addItem(new MakarovGun(ResourcesManager.key));
+									Game.player.addItem(new MakarovGun(ResourcesManager.makarovGun));
+									Game.player.addItem(new MakarovGun(ResourcesManager.key));
 									MakarovGun mkg = new MakarovGun(ResourcesManager.makarovGun);
 									mkg.setCount(10);
-									Game.player.invList.add(mkg);
-									Game.player.invList.add(new MakarovGun(ResourcesManager.key));
+									Game.player.addItem(mkg);
+									Game.player.addItem(new MakarovGun(ResourcesManager.key));
 									
 								} else {
 									JOptionPane.showMessageDialog(null, ResourcesManager.logErrLoadingGame, "Error", 0);
@@ -98,7 +105,7 @@ public class MouseInputManager implements MouseListener {
 			//OptionsButton
 			if(e.getX() >= Game.m_optBtnX && e.getX() <= Game.m_optBtnX+Game.m_optBtn.getWidth(null)) {
 				if(e.getY() >= Game.m_optBtnY && e.getY() <= Game.m_optBtnY+Game.m_optBtn.getHeight(null)) {
-					//soon
+					LevelManager.setLevelByID(-4);
 				}
 			}
 			//ExitButton
@@ -123,6 +130,33 @@ public class MouseInputManager implements MouseListener {
 			if(e.getX() >= Game.m_langBtnX && e.getX() <= Game.m_langBtnX+Game.m_langBtnWidth) {
 				if(e.getY() >= Game.m_langBtnY && e.getY() <= Game.m_langBtnY+Game.m_langBtnHeight) {
 					LevelManager.setLevelByID(-3);
+				}
+			}
+		}
+		else if(LevelManager.levelNumber == -4)
+		{
+			if(e.getX() >= OptionsScreen.btnBackX && e.getX() <= OptionsScreen.btnBackX+OptionsScreen.btnBackWidth) {
+				if(e.getY() >= OptionsScreen.btnBackY && e.getY() <= OptionsScreen.btnBackY+OptionsScreen.btnBackHeight) {
+					LevelManager.setLevelByID(0);
+				}
+			}
+			for(UIComponent c : OptionsScreen.ui) {
+				if(c instanceof UIDropList) {
+					UIDropList dl = (UIDropList)c;
+					if(e.getX() >= dl.btnDropX && e.getX() <= dl.btnDropX+dl.btnDropWidth) {
+						if(e.getY() >= dl.btnDropY && e.getY() <= dl.btnDropY+dl.btnDropHeight) {
+							dl.drop = !dl.drop;
+						}
+					}
+					for(UICell uc : dl.cells) {
+						if(e.getX() >= uc.getX() && e.getX() <= uc.getX()+uc.getWidth()) {
+							if(e.getY() >= uc.getY() && e.getY() <= uc.getY()+uc.getHeight()) {
+								uc.isSelected = true;
+								dl.caption = uc.getTitle();
+								dl.drop = false;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -254,6 +288,32 @@ public class MouseInputManager implements MouseListener {
 					}
 				}
 			}
+		}
+		else if(LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
+			if(!Game.player.currentWeapon.equals(null) && !Game.paused && Game.player.canAttack && Game.player.currentWeapon instanceof Gun && ((Gun)Game.player.currentWeapon).ammoCount > 0) {
+//				for(Block b : LevelManager.currentLevel.blocks) {
+//					if(Game.player.getCell().x < Game.player.shootTarget.getCell().x) {
+//						if(Game.player.getCell().y > Game.player.shootTarget.getCell().y) {
+//							
+//						}
+//						else if(Game.player.getCell().y < Game.player.shootTarget.getCell().y) {
+//							
+//						}
+//					}
+//				}
+				int ammo = ((Gun)Game.player.currentWeapon).ammoCount;
+				if(ammo != 0) {
+					Random r = new Random();
+					float accuracy = ((Gun)Game.player.currentWeapon).hitAccuracy;
+					int weaponHitDamage = ((Gun)Game.player.currentWeapon).hitDamage;
+					double acc = r.nextDouble() * (1 - accuracy)+accuracy;
+					ammo -= 1;
+					Game.player.shootTarget.decreaseHealth((int)(weaponHitDamage*acc));
+				}
+				
+				//Debug.log(Game.player.shootTarget.getHealth());
+			}
+				
 		}
 
 	}
@@ -427,10 +487,10 @@ public class MouseInputManager implements MouseListener {
 			
 			Game.player.setHealth(health);
 			Game.player.setMaxHealth(maxH);
-			Game.player.setAmmo(ammo);
-			Game.player.setMaxAmmo(maxA);
-			Game.player.setMagicCount(magic);
-			Game.player.setMaxMagic(maxM);
+			//Game.player.setAmmo(ammo);
+			//Game.player.setMaxAmmo(maxA);
+			//Game.player.setMagicCount(magic);
+			//Game.player.setMaxMagic(maxM);
 			Game.player.setMoney(money);
 			Game.player.setRubyCount(ruby);
 			
@@ -620,23 +680,43 @@ public class MouseInputManager implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
-			if (Game.player.inventoryShow) {
-				/*
-				 * Armor cells must be described too.
-				 * Don't forget!
-				 */
-				for(UISlot c : Game.player.inventory.cells) {
-					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
-						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
-							c.isDragging = true;
-							
-							
-						}
-					}
-				}
-			}
-		}
+//		if (LevelManager.levelNumber > 0 || LevelManager.levelNumber <= -10) {
+//			if (Game.player.inventoryShow) {
+//				/*
+//				 * Armor cells must be described too.
+//				 * Don't forget!
+//				 */
+//				//Debug.log("!!!");
+//				int index = 0;
+//				for(UISlot c : Game.player.inventory.cells) {
+//					
+//					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
+//						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
+//							if(c.hasItem && !Game.player.inventory.dragging) {
+//								Game.player.inventory.dragging = true;
+//								Game.player.inventory.dragCell = c;
+//							}
+//							else if (!c.hasItem && Game.player.inventory.dragging){
+//								c.putItem(Game.player.inventory.dragCell.getItem());
+//								Game.player.invList.add(index, Game.player.inventory.dragCell.getItem());
+////								for(UISlot c2 : Game.player.inventory.cells) {
+////									if(c2.equals(Game.player.inventory.dragCell)) {
+////										//c2.hasItem = false;
+////										//c2.putItem(null);
+////										Game.player.invList.remove(c2.getItem());
+////										//c2.hasItem = false;
+////									}
+////								}
+//								Game.player.inventory.dragCell = null;
+//								Game.player.inventory.dragging = false;
+//								
+//							}
+//						}
+//					}
+//					index++;
+//				}
+//			}
+//		}
 
 	}
 
@@ -648,22 +728,36 @@ public class MouseInputManager implements MouseListener {
 				 * Armor cells must be described too.
 				 * Don't forget!
 				 */
+				//Debug.log("!!!");
+				int index = 0;
 				for(UISlot c : Game.player.inventory.cells) {
-					if(c.isDragging) {
-						//Debug.log("!!!");
-//						for(UISlot c2 : Game.player.inventory.cells) {
-//							if(e.getX() >= c2.getX() && e.getX() <= c2.getX()+c2.getWidth()) {
-//								if(e.getY() >= c2.getY() && e.getY() <= c2.getY()+c2.getHeight()) {
-//									Item it = c2.getItem();
-//									c.putItem(null);
-//									c.isDragging = false;
-//									c2.isDragging = true;
-//									c2.putItem(c.getItem());
-//								}
-//							}
-//						}
-						c.isDragging = false;
+					
+					if(e.getX() >= c.getX() && e.getX() <= c.getX()+c.getWidth()) {
+						if(e.getY() >= c.getY() && e.getY() <= c.getY()+c.getHeight()) {
+							if (!c.hasItem && Game.player.inventory.dragging){
+								c.putItem(Game.player.inventory.dragCell.getItem());
+								Game.player.invList.put(index, Game.player.inventory.dragCell.getItem());
+								int index2 = 0;
+								for(UISlot c2 : Game.player.inventory.cells) {
+									if(c2.equals(Game.player.inventory.dragCell)) {
+										//c2.hasItem = false;
+										//c2.putItem(null);
+										Game.player.invList.remove(index2);
+										Debug.log(Game.player.inventory.dragging);
+										//c2.hasItem = false;
+									}
+									index2++;
+								}
+								Game.player.inventory.dragCell = null;
+								Game.player.inventory.dragging = false;
+							}
+							else if(c.hasItem && !Game.player.inventory.dragging) {
+								Game.player.inventory.dragging = true;
+								Game.player.inventory.dragCell = c;
+							}
+						}
 					}
+					index++;
 				}
 			}
 		}

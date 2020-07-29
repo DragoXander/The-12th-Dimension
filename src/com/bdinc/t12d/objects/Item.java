@@ -15,8 +15,11 @@ public class Item {
 	protected int uiX, uiY;
 	protected Image sprite;
 	protected Map map = new Map();
-	protected int count = 0;
-	protected String name, description;;
+	protected int count = 1;
+	protected String name, description, type;
+	public boolean isInteractive;
+	
+	public Item() {}
 	
 	public Item(Image sprite) {
 		this.sprite = sprite;

@@ -11,6 +11,7 @@ import com.bdinc.t12d.objects.Block;
 import com.bdinc.t12d.objects.Button;
 import com.bdinc.t12d.objects.Entity;
 import com.bdinc.t12d.objects.Flame;
+import com.bdinc.t12d.objects.Gun;
 import com.bdinc.t12d.objects.Item;
 import com.bdinc.t12d.objects.Particle;
 import com.bdinc.t12d.objects.SlotContainer;
@@ -31,6 +32,7 @@ public class Level {
 	public ArrayList<Particle> playerMagic = new ArrayList<Particle>();
 	public ArrayList<Particle> enemyMagic = new ArrayList<Particle>();
 	public ArrayList<SlotContainer> conts = new ArrayList<SlotContainer>();
+	public ArrayList<Object> levelObjects = new ArrayList<Object>();
 	
 	private LevelReader reader = new LevelReader();
 	
@@ -117,6 +119,7 @@ public class Level {
 		blocks = source.blocks;
 		flames = source.flames;
 		conts = source.conts;
+		items = source.items;
 		name = source.getName();
 		ID = source.getID();
 		author = source.getAuthor();
@@ -124,6 +127,19 @@ public class Level {
 		for(SlotContainer c : conts) {
 			blocks.add(c);
 		}
+		for(Block b : blocks) {
+			levelObjects.add(b);
+		}
+		for(Item b : items) {
+			levelObjects.add(b);
+		}
+		for(Entity b : entities) {
+			levelObjects.add(b);
+		}
+		for(Flame b : flames) {
+			levelObjects.add(b);
+		}
+		
 		this.init();
 	}
 	
@@ -140,6 +156,16 @@ public class Level {
 					else if (!(b instanceof SlotContainer)){
 						b.draw(g);
 					}
+					
+				}
+			}
+			if(LevelManager.currentLevel.items.size() > 0) {
+				for(Item it : LevelManager.currentLevel.items) {
+					if(it.getSprite() == null)
+					{
+						System.err.println("No sprite in block<"+it.toString()+">!");
+					}
+					it.draw(g);
 					
 				}
 			}
@@ -161,19 +187,15 @@ public class Level {
 //			}
 			
 			
-//			if(LevelManager.currentLevel.particles.size() > 0) {
-//				for(Particle p : LevelManager.currentLevel.particles) {
-//					if(p.getSprite() == null) {
-//						System.err.println("No sprite in particle<"+p.toString()+">!");
-//					}
-//					if(!p.active) {
-//						LevelManager.currentLevel.particles.remove(p);
-//					} else {
-//						p.draw(g);
-//					}
-//					
-//				}
-//			}
+			if(LevelManager.currentLevel.particles.size() > 0) {
+				for(Particle p : LevelManager.currentLevel.particles) {
+					if(p.getSprite() == null) {
+						System.err.println("No sprite in particle<"+p.toString()+">!");
+					}
+					p.draw(g);
+					
+				}
+			}
 			if(LevelManager.currentLevel.conts.size() > 0) {
 				//Debug.log("ff");
 				for(SlotContainer b : LevelManager.currentLevel.conts) {
@@ -209,13 +231,17 @@ public class Level {
 			g.drawImage(ResourcesManager.life, 10, 10, null);
 			g.drawImage(ResourcesManager.coin10_X16, moneyX, 10, null);
 			g.drawImage(ResourcesManager.ruby, rubyX, 10, null);
-			g.drawImage(ResourcesManager.ammo, ammoX, 0, null);
+			if(Game.player.currentWeapon instanceof Gun && !Game.player.currentWeapon.equals(null)) {
+				g.drawImage(ResourcesManager.ammo, ammoX, 0, null);
+				g.setColor(Color.WHITE);
+				g.setFont(ResourcesManager.defaultFont);
+				g.drawString(""+((Gun)Game.player.currentWeapon).ammoCount+"/"+((Gun)Game.player.currentWeapon).maxAmmoCount, ammoStrX, 25);
+			}
 			g.setColor(Color.WHITE);
 			g.setFont(ResourcesManager.defaultFont);
 			g.drawString(""+Game.player.getHealth(), lifeStrX, 25);
 			g.drawString(""+Game.player.getMoney(), moneyStrX, 25);
 			g.drawString(""+Game.player.getRubyCount(), rubyStrX, 25);
-			g.drawString(""+Game.player.getAmmo()+"/"+Game.player.getMaxAmmo(), ammoStrX, 25);
 			String profile = Options.profileName;
 			
 			if(profile.length() >= 21) {

@@ -18,7 +18,7 @@ public class Block implements ISolidObject, Serializable {
 	protected int cellX, cellY;
 	protected Map map = new Map();
 	private Game game = new Game();
-	public boolean isTrigger, isInteractive;
+	public boolean isTrigger, isInteractive, isStatic;
 	
 	public String id = "block";
 	

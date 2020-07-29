@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 
+import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.objects.Item;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.utils.Debug;
@@ -24,6 +25,9 @@ public class UISlot {
 	
 	private String tooltipText, tooltipTitle, countStr;
 	public boolean isHover, hasItem, isDragging, showCount = true;
+	public boolean isQuickAccess, isQASSelected;
+	
+	public boolean invSlot;
 	
 	private Font tooltipTitleFont, tooltipFont;
 	
@@ -58,7 +62,7 @@ public class UISlot {
 		this.imgX = n.imgX;
 		this.imgY = n.imgY;
 		this.imgDragX = n.imgDragX;
-		this.imgDragY = n.imgDragY;
+		this.invSlot = n.invSlot;
 	}
 	public UISlot(int x, int y, int width, int height, Color bg, Color hover, boolean tooltip) {
 		this.x = x;
@@ -72,15 +76,28 @@ public class UISlot {
 	
 	public void putItem(Item itm) {
 		this.object = itm;
+		if(invSlot) {
+			Game.player.inventory.change = true;
+		}
+		
 		hasItem = true;
 	}
 	
 	public void draw(Graphics g) {
-		if(!isDragging) {
+		if(!Game.player.inventory.dragging) {
 			imgX = x+3;
 			imgY = y+3;
 		}
-		if(isHover) {
+		if(isQuickAccess) {
+			
+			if(isQASSelected) {
+				setBackground(hoverColor);
+			}
+			else {
+				resetBackground();
+			}
+		}
+		else if(isHover) {
 			setBackground(hoverColor);
 		} else {
 			resetBackground();
@@ -89,14 +106,16 @@ public class UISlot {
 		g.drawRect(x, y, width, height);
 		g.setColor(background);
 		g.fillRect(x+1, y+1, width-1, height-1);
-		g.drawImage(object.getSprite(), imgX, imgY, width-3, height-3, null);
-		if(hasItem && showCount) {
-			countStr = String.valueOf(object.getCount());
-			g.setColor(countInfoColor);
-			//Debug.log("RED:"+countInfoColor.getRed());
-			g.setFont(ResourcesManager.defaultFont14);
-			FontMetrics m = g.getFontMetrics(ResourcesManager.defaultFont14);
-			g.drawString(countStr, x+width-m.stringWidth(countStr)-2, y+height-m.getDescent()-2);
+		if(hasItem) {
+			g.drawImage(object.getSprite(), imgX, imgY, width-3, height-3, null);
+			if(showCount) {
+				countStr = String.valueOf(object.getCount());
+				g.setColor(countInfoColor);
+				//Debug.log("RED:"+countInfoColor.getRed());
+				g.setFont(ResourcesManager.defaultFont14);
+				FontMetrics m = g.getFontMetrics(ResourcesManager.defaultFont14);
+				g.drawString(countStr, x+width-m.stringWidth(countStr)-2, y+height-m.getDescent()-2);
+			}
 			
 		}
 		if(tooltipEnabled) {
@@ -116,6 +135,11 @@ public class UISlot {
 //			}
 			g.drawString(object.getDescription(), toolTipX+3, toolTipY+m.getHeight()+4+m1.getHeight());
 		}
+	}
+	
+	public void removeItem() {
+		this.object = null;
+		this.hasItem = false;
 	}
 	
 	public void setItemCount(int count) {

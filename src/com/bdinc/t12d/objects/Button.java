@@ -27,7 +27,17 @@ public class Button extends Block implements Serializable {
 		this.target = target;
 		this.args = args;
 		this.isInteractive = true;
-		this.isTrigger = true;		
+		this.isTrigger = true;	
+		try
+		{
+			map.init();
+		}
+		catch(Exception e)
+		{
+			System.err.println("Can't initialize the map...");
+			System.err.println("Caused by item<"+this.toString()+">!");
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -46,7 +56,7 @@ public class Button extends Block implements Serializable {
 			if(Game.player.getCell().x == this.cellX-1 || Game.player.getCell().x == this.cellX+1 || Game.player.getCell().x == this.cellX) {
 				if(Game.player.getCell().y == this.cellY || Game.player.getCell().y == this.cellY+1) {
 					if(!active) {
-						Game.player.isInteracting = true;
+						//Game.player.isInteracting = true;
 						g.setColor(Color.YELLOW);
 						g.setFont(ResourcesManager.defaultFont14);
 						g.drawString(ResourcesManager.interactTooltip, 5, Game.HEIGHT-30);
@@ -85,12 +95,12 @@ public class Button extends Block implements Serializable {
 				for(Block b : LevelManager.currentLevel.blocks) {
 					if(b instanceof Platform) {
 						if(b.equals(target)) { //b.getCell().x == ((Platform)target).cellX && b.getCell().y == ((Platform)target).cellY
-							if(args.startsWith("move")) {
+							if(args.startsWith("transform")) {
 								String[] argp1 = args.split("\\(");
 								String[] argp2 = argp1[1].split("\\)");
 								String a = argp2[0];
-								if(isCharExistIn(a, ';')) {
-									String[] property = a.split("\\;");
+								if(isCharExistIn(a, '/')) {
+									String[] property = a.split("/");
 									for(int i = 0; i < property.length; i++) {
 										String[] tmp = property[i].split(":");
 										if(property[i].startsWith("direction")) {
@@ -131,7 +141,61 @@ public class Button extends Block implements Serializable {
 				}
 				
 			} else if (target instanceof Door) {
-				
+				for(Block b : LevelManager.currentLevel.blocks) {
+					if(b instanceof Door) {
+						if(b.equals(target)) {
+							if(args.equals("open()")) {
+								((Door)b).open();
+							} else if (args.equals("close()")) {
+								((Door)b).close();
+							}
+						}
+					}
+				}
+			} else if (target instanceof Block) {
+				for(Block b : LevelManager.currentLevel.blocks) {
+					if(b.equals(target)) {
+						if(args.startsWith("move")) {
+							String[] argp1 = args.split("\\(");
+							String[] argp2 = argp1[1].split("\\)");
+							String[] sub = argp2[0].split("/");
+							int speed = 0;
+							for(int i = 0; i < sub.length; i++) {
+								String[] p1 = sub[i].split("\\[");
+								String[] p2 = p1[1].split("\\]");
+								switch(p1[0]) {
+									case "position":
+										String[] cor = p2[0].split("\\,");
+										int x = Integer.parseInt(cor[0]);
+										int y = Integer.parseInt(cor[1]);
+										b.setLocation(x, y);
+										break;
+								}
+							}
+						} else if (args.startsWith("transform")) {
+							String[] argp1 = args.split("\\(");
+							String[] argp2 = argp1[1].split("\\)");
+							String[] sub = argp2[0].split("/");
+							int speed = 0;
+							for(int i = 0; i < sub.length; i++) {
+								String[] p1 = sub[i].split("\\[");
+								String[] p2 = p1[1].split("\\]");
+								switch(p1[0]) {
+									case "position":
+										String[] cor = p2[0].split("\\,");
+										int x = Integer.parseInt(cor[0]);
+										int y = Integer.parseInt(cor[1]);
+										b.setLocation(x, y);
+										break;
+									case "isStatic":
+										boolean stat = Boolean.parseBoolean(p2[0]);
+										b.isStatic = stat;
+										break;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		

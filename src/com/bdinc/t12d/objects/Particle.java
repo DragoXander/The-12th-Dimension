@@ -6,7 +6,9 @@ import java.awt.Image;
 import com.bdinc.t12d.level.LevelManager;
 import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.maths.Map;
+import com.bdinc.t12d.maths.Physics;
 import com.bdinc.t12d.maths.Vector2;
+import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.IntVector2;
 
 public class Particle {
@@ -17,6 +19,9 @@ public class Particle {
 	private int cellX, cellY, tmpX, tmpY;
 	
 	private Entity source, target;
+	public Vector2 targetPos;
+	
+	private int direction;
 	
 	public static final int DIRECTION_RIGHT = 2001;
 	public static final int DIRECTION_LEFT = 2002;
@@ -30,6 +35,8 @@ public class Particle {
 	private Map map = new Map();
 	
 	private float speed = 0.5f;
+	
+	public int damage;
 	
 	public boolean active = false;
 	public boolean hit = false;
@@ -54,6 +61,17 @@ public class Particle {
 		tmpY = this.cellY;
 	}
 	
+	public void setDirection(int direction) {
+		switch(direction) {
+			case DIRECTION_RIGHT:
+				this.direction = 1;
+				break;
+			case DIRECTION_LEFT:
+				this.direction = -1;
+				break;
+		}
+	}
+	
 	public void setSpeed(float value) {
 		this.speed = value;
 	}
@@ -74,7 +92,7 @@ public class Particle {
 		this.speed -= value;
 	}
 	
-	public void move() {
+	public void moveToTarget() {
 		if(this.cellX > target.getCell().x) {
 			if(this.x <= 0) {
 				this.active = false;
@@ -97,6 +115,35 @@ public class Particle {
 			this.hit = true;
 			target.decreaseHealth(10);
 		}
+	}
+	
+	public void setPositionByCords(float x, float y) {
+		this.x = x;
+		this.y = y;
+//		this.cellX = (int)map.checkCell(x, y).x;
+//		this.cellY = (int)map.checkCell(x, y).y;
+	}
+	
+	public void move() {
+//		if(!Physics.collidesRight(x, y) && !Physics.collidesLeft(x, y)) {
+//			if(this.x < targetPos.x) {
+//				this.x += 1 * speed;
+//			} else if(this.x > targetPos.x) {
+//				this.x -= 1 * speed;
+//			} 
+//		} else {
+//			hit = true;
+//		}
+//		if(this.x < targetPos.x) {
+//			this.x += 1 * speed;
+//		} else if(this.x > targetPos.x) {
+//			this.x -= 1 * speed;
+//		} 
+		this.x += 1 * speed;
+	}
+	
+	public void setDirection(int x, int y) {
+		targetPos = new Vector2(x, y);
 	}
 	
 	public void moveTo(int direction) {

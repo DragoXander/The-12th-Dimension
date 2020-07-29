@@ -56,7 +56,6 @@ public class HorizontalPlatform extends Platform implements Serializable{
 			}
 			if(Physics.collidesBottomWith(this, Game.player.posX(), Game.player.posY())) {
 				Game.player.move(this.speed * this.direction);
-				Debug.log(Physics.collidesTop(Game.player.posX(), Game.player.posY()));
 			} else {
 			}
 			this.x += this.direction * this.speed;
