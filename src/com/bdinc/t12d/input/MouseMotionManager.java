@@ -141,22 +141,34 @@ public class MouseMotionManager extends MouseAdapter implements MouseMotionListe
 			if(e.getX() >= MainMenu.storyBtn.x && e.getX() <= MainMenu.storyBtn.x+MainMenu.storyBtn.width) {
 				if(e.getY() >= MainMenu.storyBtn.y && e.getY() <= MainMenu.storyBtn.y+MainMenu.storyBtn.height) {
 					//MainMenu.m_storyBtn = ResourcesManager.storyBtnDisabled;
-					MainMenu.tooltip = true;
-					MainMenu.tooltipX = e.getX()+10;
-					MainMenu.tooltipY = e.getY();
+//					MainMenu.tooltip = true;
+//					MainMenu.tooltipX = e.getX()+10;
+//					MainMenu.tooltipY = e.getY();
+					MainMenu.storyBtn.setHover(true);
+					MainMenu.storyBtn.showTooltip = true;
+					MainMenu.storyBtn.tooltip().x = e.getX()+10;
+					MainMenu.storyBtn.tooltip().y = e.getY();
 				}
 				else {
 					//MainMenu.m_storyBtn = ResourcesManager.storyBtnDisabled;
-					MainMenu.tooltip = false;
-					MainMenu.tooltipX = 0;
-					MainMenu.tooltipY = 0;
+//					MainMenu.tooltip = false;
+//					MainMenu.tooltipX = 0;
+//					MainMenu.tooltipY = 0;
+					MainMenu.storyBtn.reset();
+					MainMenu.storyBtn.showTooltip = false;
+					MainMenu.storyBtn.tooltip().x = 0;
+					MainMenu.storyBtn.tooltip().y = 0;
 				}
 			}
 			else {
 				//MainMenu.m_storyBtn = ResourcesManager.storyBtnDisabled;
-				MainMenu.tooltip = false;
-				MainMenu.tooltipX = 0;
-				MainMenu.tooltipY = 0;
+//				MainMenu.tooltip = false;
+//				MainMenu.tooltipX = 0;
+//				MainMenu.tooltipY = 0;
+				MainMenu.storyBtn.reset();
+				MainMenu.storyBtn.showTooltip = false;
+				MainMenu.storyBtn.tooltip().x = 0;
+				MainMenu.storyBtn.tooltip().y = 0;
 			}
 			//LangBtn
 			if(e.getX() >= MainMenu.langBtn.x && e.getX() <= MainMenu.langBtn.x+MainMenu.langBtn.width) {

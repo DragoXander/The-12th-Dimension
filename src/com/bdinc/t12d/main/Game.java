@@ -93,16 +93,6 @@ public class Game extends Canvas implements Runnable {
 	public static Color m_continueBtnColor, m_optionsBtnColor;
 	public static Color m_exmBtnColor;
 	
-	public static int m_playBtnX, m_playBtnY;
-	public static int m_shopBtnX, m_shopBtnY;
-	public static int m_optBtnX, m_optBtnY;
-	public static int m_exitBtnX, m_exitBtnY;
-	public static int m_profileBtnX, m_profileBtnY;
-	public static int m_profileBtnWidth, m_profileBtnHeight;
-	public static int m_labelX, m_labelY;
-	public static int m_contRectX, m_contRectY, m_contBtnX, m_extraBtnX, m_extraBtnY, m_storyBtnY;
-	public static int m_langBtnWidth, m_langBtnHeight, m_langBtnX, m_langBtnY;
-	
 	public static JFrame gameWindow;
 	
 	public static Entity player;

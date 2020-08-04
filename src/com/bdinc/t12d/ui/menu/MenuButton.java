@@ -7,6 +7,9 @@ public class MenuButton extends MenuComponent implements MenuInteractable {
     private boolean hover = false, active = false, disabled = false;
     private Image img_hover, img_active, img_dis, img_default;
     private Image toDraw;
+    private Tooltip tooltip;
+    public boolean showTooltip = false;
+    public boolean hasTooltip = false;
 
     public MenuButton() {}
     public MenuButton(Image def, Image hov, Image act) {
@@ -34,6 +37,16 @@ public class MenuButton extends MenuComponent implements MenuInteractable {
         this.img_default = def;
     }
 
+    public void setTooltip(Tooltip.TooltipProperties properties) {
+        tooltip = new Tooltip(properties);
+        hasTooltip = true;
+    }
+
+    public void resetTooltip() {
+        hasTooltip = false;
+        tooltip = null;
+    }
+
     @Override
     public void render(Graphics g) {
         g.drawImage(toDraw, x, y, width, height, null);
@@ -54,6 +67,13 @@ public class MenuButton extends MenuComponent implements MenuInteractable {
         else {
             toDraw = img_dis;
         }
+    }
+
+    public Tooltip tooltip() {
+        if(tooltip != null)
+            return tooltip;
+        else
+            return new Tooltip(new Tooltip.TooltipProperties());
     }
 
     @Override

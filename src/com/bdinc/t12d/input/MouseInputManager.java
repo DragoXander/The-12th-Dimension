@@ -59,8 +59,8 @@ public class MouseInputManager implements MouseListener {
 			}
 		}
 		if(LevelManager.levelNumber == 0) {
-			if(e.getX() >= MainMenu.m_playBtnX && e.getX() <= MainMenu.m_playBtnX+MainMenu.m_playBtn.getWidth(null)) {
-				if(e.getY() >= MainMenu.m_playBtnY && e.getY() <= MainMenu.m_playBtnY+MainMenu.m_playBtn.getHeight(null)) {
+			if(e.getX() >= MainMenu.playBtn.x && e.getX() <= MainMenu.playBtn.x+MainMenu.playBtn.width) {
+				if(e.getY() >= MainMenu.playBtn.y && e.getY() <= MainMenu.playBtn.y+MainMenu.playBtn.height) {
 					if(ResourcesManager.getProfilesList().size() > 0 && !Options.profileName.equals(Options.DEFAULT_PROFILE)) {
 						sav1 = new File("assets/saves/"+Options.profileName+"_info.dat");
 						sav2 = new File("assets/saves/"+Options.profileName+"_blocks.dat");
@@ -94,38 +94,38 @@ public class MouseInputManager implements MouseListener {
 				}
 			}
 			//ShopButton
-			if(e.getX() >= MainMenu.m_shopBtnX && e.getX() <= MainMenu.m_shopBtnX+MainMenu.m_shopBtn.getWidth(null)) {
-				if(e.getY() >= MainMenu.m_shopBtnY && e.getY() <= MainMenu.m_shopBtnY+MainMenu.m_shopBtn.getHeight(null)) {
+			if(e.getX() >= MainMenu.shopBtn.x && e.getX() <= MainMenu.shopBtn.x+MainMenu.shopBtn.width) {
+				if(e.getY() >= MainMenu.shopBtn.y && e.getY() <= MainMenu.shopBtn.y+MainMenu.shopBtn.height) {
 					//soon
 				}
 			}
 			//OptionsButton
-			if(e.getX() >= MainMenu.m_optBtnX && e.getX() <= MainMenu.m_optBtnX+MainMenu.m_optBtn.getWidth(null)) {
-				if(e.getY() >= MainMenu.m_optBtnY && e.getY() <= MainMenu.m_optBtnY+MainMenu.m_optBtn.getHeight(null)) {
+			if(e.getX() >= MainMenu.optBtn.x && e.getX() <= MainMenu.optBtn.x+MainMenu.optBtn.width) {
+				if(e.getY() >= MainMenu.optBtn.y && e.getY() <= MainMenu.optBtn.y+MainMenu.optBtn.height) {
 					LevelManager.setLevelByID(-4);
 				}
 			}
 			//ExitButton
-			if(e.getX() >= MainMenu.m_exitBtnX && e.getX() <= MainMenu.m_exitBtnX+MainMenu.m_exitBtn.getWidth(null)) {
-				if(e.getY() >= MainMenu.m_exitBtnY && e.getY() <= MainMenu.m_exitBtnY+MainMenu.m_exitBtn.getHeight(null)) {
+			if(e.getX() >= MainMenu.exitBtn.x && e.getX() <= MainMenu.exitBtn.x+MainMenu.exitBtn.width) {
+				if(e.getY() >= MainMenu.exitBtn.y && e.getY() <= MainMenu.exitBtn.y+MainMenu.exitBtn.height) {
 					Game.stop();
 				}
 			}
 			//Profile select button
-			if(e.getX() >= MainMenu.m_profileBtnX && e.getX() <= MainMenu.m_profileBtnX+MainMenu.m_profileBtnWidth) {
-				if(e.getY() >= MainMenu.m_profileBtnY && e.getY() <= MainMenu.m_profileBtnY+MainMenu.m_profileBtnHeight) {
+			if(e.getX() >= MainMenu.profileBtn.x && e.getX() <= MainMenu.profileBtn.x+MainMenu.profileBtn.width) {
+				if(e.getY() >= MainMenu.profileBtn.y && e.getY() <= MainMenu.profileBtn.y+MainMenu.profileBtn.height) {
 					LevelManager.setLevelByID(-1);
 				}
 			}
 			//ExtraBtn
-			if(e.getX() >= MainMenu.m_extraBtnX && e.getX() <= MainMenu.m_extraBtnX+MainMenu.m_extraBtn.getWidth(null)) {
-				if(e.getY() >= MainMenu.m_extraBtnY && e.getY() <= MainMenu.m_extraBtnY+MainMenu.m_extraBtn.getHeight(null)) {
+			if(e.getX() >= MainMenu.extraBtn.x && e.getX() <= MainMenu.extraBtn.x+MainMenu.extraBtn.width) {
+				if(e.getY() >= MainMenu.extraBtn.y && e.getY() <= MainMenu.extraBtn.y+MainMenu.extraBtn.height) {
 					LevelManager.setLevelByID(-2);
 				}
 			}
 			//LangBtn
-			if(e.getX() >= MainMenu.m_langBtnX && e.getX() <= MainMenu.m_langBtnX+MainMenu.m_langBtnWidth) {
-				if(e.getY() >= MainMenu.m_langBtnY && e.getY() <= MainMenu.m_langBtnY+MainMenu.m_langBtnHeight) {
+			if(e.getX() >= MainMenu.langBtn.x && e.getX() <= MainMenu.langBtn.x+MainMenu.langBtn.width) {
+				if(e.getY() >= MainMenu.langBtn.y && e.getY() <= MainMenu.langBtn.y+MainMenu.langBtn.height) {
 					LevelManager.setLevelByID(-3);
 				}
 			}

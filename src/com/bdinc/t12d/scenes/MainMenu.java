@@ -4,6 +4,7 @@ import com.bdinc.t12d.main.Game;
 import com.bdinc.t12d.settings.Options;
 import com.bdinc.t12d.settings.ResourcesManager;
 import com.bdinc.t12d.ui.menu.MenuButton;
+import com.bdinc.t12d.ui.menu.Tooltip;
 import com.bdinc.t12d.utils.ColorManager;
 import com.bdinc.t12d.utils.Debug;
 import com.bdinc.t12d.utils.LangManager;
@@ -11,6 +12,7 @@ import com.bdinc.t12d.utils.LangManager;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class MainMenu {
 
@@ -30,10 +32,12 @@ public class MainMenu {
     public static Color m_exmBtnColor;
     public static Color m_profileBtnColor;
 
+    private static LinkedList<MenuButton> buttons = new LinkedList<MenuButton>();
+
     public static boolean tooltip;
     public static int tooltipX, tooltipY;
 
-    public HashMap<String, MenuButton> buttons = new HashMap<String, MenuButton>();
+    //public HashMap<String, MenuButton> buttons = new HashMap<String, MenuButton>();
     public static MenuButton playBtn, shopBtn, extraBtn, optBtn, exitBtn, storyBtn, langBtn, contBtn, profileBtn;
 
     public static void init() {
@@ -47,6 +51,31 @@ public class MainMenu {
         contBtn = new MenuButton(ResourcesManager.playBtn, ResourcesManager.playBtnHover, ResourcesManager.playBtnHover);
         profileBtn = new MenuButton();
         storyBtn.setDisabled(true);
+        Tooltip.TooltipProperties storyTip = new Tooltip.TooltipProperties();
+        storyTip.headerFont = ResourcesManager.defaultFont16;
+        storyTip.font = ResourcesManager.defaultFont14;
+        storyTip.bgColor = ColorManager.getAlphaColor(Color.CYAN, 90);
+        storyTip.headerBg = ColorManager.getAlphaColor(Color.magenta, 90);
+        storyTip.headerTextColor = Color.YELLOW;
+        storyTip.borderColor = Color.WHITE;
+        storyTip.borderWidth = 2;
+        storyTip.textColor = Color.WHITE;
+        storyTip.maxHeight = 290;
+        storyTip.maxWidth = 350;
+        storyTip.headerPadding = 2;
+        storyTip.padding = 2;
+        storyTip.headerText = ResourcesManager.m_storyMode;
+        storyTip.text = ResourcesManager.m_storyModeDis;
+        storyBtn.setTooltip(storyTip);
+        buttons.add(playBtn);
+        buttons.add(shopBtn);
+        buttons.add(extraBtn);
+        buttons.add(exitBtn);
+        buttons.add(storyBtn);
+        buttons.add(optBtn);
+        buttons.add(langBtn);
+        //buttons.add(contBtn);
+        buttons.add(profileBtn);
 
         m_continueBtnColor = ColorManager.FOREST_GREEN;
         m_optionsBtnColor = ColorManager.VIOLET;
@@ -85,25 +114,39 @@ public class MainMenu {
     }
     public static void update(float delta) {
         markup();
-        playBtn.update(delta);
-        shopBtn.update(delta);
-        storyBtn.update(delta);
-        extraBtn.update(delta);
-        langBtn.update(delta);
-        optBtn.update(delta);
-        exitBtn.update(delta);
-        contBtn.update(delta);
+        for(MenuButton b : buttons) {
+            b.update(delta);
+            if(b.hasTooltip) {
+                b.tooltip().update(delta);
+            }
+        }
+
+//        playBtn.update(delta);
+//        shopBtn.update(delta);
+//        storyBtn.update(delta);
+//        extraBtn.update(delta);
+//        langBtn.update(delta);
+//        optBtn.update(delta);
+//        exitBtn.update(delta);
+//        contBtn.update(delta);
     }
 
     public static void render(Graphics g) {
         g.drawImage(ResourcesManager.logo, 10, 50, null);
-        playBtn.render(g);
-        shopBtn.render(g);
-        optBtn.render(g);
-        exitBtn.render(g);
-        extraBtn.render(g);
-        storyBtn.render(g);
-        langBtn.render(g);
+        for(MenuButton b : buttons) {
+            b.render(g);
+            if(b.hasTooltip && b.showTooltip) {
+                b.tooltip().render(g);
+            }
+            //b.render(g);
+        }
+//        playBtn.render(g);
+//        shopBtn.render(g);
+//        optBtn.render(g);
+//        exitBtn.render(g);
+//        extraBtn.render(g);
+//        storyBtn.render(g);
+//        langBtn.render(g);
 
         //�������:
         g.setColor(Color.WHITE);

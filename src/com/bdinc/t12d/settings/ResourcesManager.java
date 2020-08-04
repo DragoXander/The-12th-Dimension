@@ -47,6 +47,8 @@ public class ResourcesManager {
 	public static String m_profileMoney = "Money: ";
 	public static String m_selectProfile = ">>   Select Profile";
 	public static String m_storyMode = "Story Mode";
+	public static String m_storyModeDis = "Presenting you a story mode. It is a cool " +
+			"story about the main hero - Adam Robbins! The 1st episode will be available in: v10.0";
 	public static String m_storyModeDis1 = "Presenting you a story mode. It is a cool";
 	public static String m_storyModeDis2 = "story about the main hero - Adam Robbins!";
 	public static String m_storyModeDis3 = "The 1st episode will be available in: v10.0";
